@@ -2,7 +2,10 @@ import create from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
 let store = (set, get) => ({
-  user: null,
+  user: {
+    fullName: '',
+    email: '',
+  },
   token: null,
   getUser: () => get().user,
   setDataUser: (data) => {

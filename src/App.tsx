@@ -11,7 +11,7 @@ const theme = createTheme({
     allVariants: {
       fontFamily: 'Kodchasan',
       textTransform: 'none',
-      fontSize: 16,
+      // fontSize: 16,
     },
   },
 })

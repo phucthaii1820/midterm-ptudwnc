@@ -7,13 +7,13 @@ import RegularRoute from './RegularRoute'
 import userStore from '../stores/user'
 
 export default function WebRoute() {
-  const { user } = userStore()
+  const { token } = userStore()
   return (
     <BrowserRouter>
       <Routes>
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
-        <Route path="/*" element={user ? <RegularRoute /> : <Navigate to="/login" />} />
+        <Route path="/*" element={token ? <RegularRoute /> : <Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   )

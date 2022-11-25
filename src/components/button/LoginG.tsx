@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
 import React from 'react'
 import { useGoogleLogin } from '@react-oauth/google'
-// import jwt_decode from 'jwt-decode'
 import { Button } from '@mui/material'
 import GoogleIcon from '@mui/icons-material/Google'
 import { red } from '@mui/material/colors'

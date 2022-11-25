@@ -16,7 +16,18 @@ import { teal } from '@mui/material/colors'
 import { useNavigate } from 'react-router-dom'
 import userStore from '../../stores/user'
 
-const pages = ['Nhóm của tôi', 'Nhóm công khai']
+const pages = [
+  {
+    id: 1,
+    name: 'Nhóm của tôi',
+    link: '/group/my-group',
+  },
+  {
+    id: 2,
+    name: 'Tạo nhóm',
+    link: '/group/create-group',
+  },
+]
 const settings = [
   {
     id: 1,
@@ -25,6 +36,11 @@ const settings = [
   },
   {
     id: 2,
+    name: 'Thay đổi mật khẩu',
+    link: '/user/change-password',
+  },
+  {
+    id: 3,
     name: 'Đăng xuất',
     link: '/logout',
   },
@@ -109,8 +125,8 @@ const Header = () => {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem key={page.id} onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -137,11 +153,11 @@ const Header = () => {
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
+                key={page.id}
+                onClick={() => navigate(page.link)}
                 sx={{ my: 2, color: 'white', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}
               >
-                {page}
+                {page.name}
               </Button>
             ))}
           </Box>
