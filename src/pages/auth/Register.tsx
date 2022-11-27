@@ -3,13 +3,43 @@ import { teal, grey } from '@mui/material/colors'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
+
 import LoginG from '../../components/button/LoginG'
+import OTP_G from '../../components/modal/OTP_G'
+import { register } from '../../api/auth'
+import { validatePass } from '../../function/validatePass'
 
 const Login = () => {
   const navigate = useNavigate()
   const { handleSubmit, control } = useForm()
+  const [openModal, setOpenModal] = React.useState(false)
+  const [email, setEmail] = React.useState('')
 
-  const onSubmit = (data: any) => console.log(data)
+  const onSubmit = async (data: any) => {
+    setEmail(data.email)
+    console.log(data)
+
+    if (data.password !== data.confirm_password) {
+      toast.error('Mật khẩu không khớp')
+      return
+    }
+    if (!validatePass(data.password)) {
+      toast.error('Mật khẩu phải có ít nhất 6 ký tự, tối đa 16 ký tự, có ít nhất 1 ký tự số và 1 ký tự đặc biệt')
+      return
+    }
+
+    const res = await toast.promise(register({ email: data.email, password: data.password, fullName: data.fullname }), {
+      pending: 'Đang đăng kí...',
+    })
+
+    if (res.status === 201) {
+      setOpenModal(true)
+    }
+    if (res?.data?.error?.code === 'account_exist') {
+      toast.error('Tài khoản đã tồn tại')
+    }
+  }
 
   return (
     <Box mt={20}>
@@ -84,7 +114,6 @@ const Login = () => {
                   <TextField
                     required
                     name="email"
-                    id="outlined-basic"
                     label=" Email"
                     variant="outlined"
                     type="email"
@@ -104,7 +133,6 @@ const Login = () => {
                   <TextField
                     required
                     name="fullname"
-                    id="outlined-basic"
                     label="Họ và tên"
                     variant="outlined"
                     type="text"
@@ -123,7 +151,6 @@ const Login = () => {
                 render={({ field: { onChange, value } }) => (
                   <TextField
                     required
-                    id="outlined-basic"
                     label="Mật khẩu"
                     variant="outlined"
                     fullWidth
@@ -142,7 +169,6 @@ const Login = () => {
                 render={({ field: { onChange, value } }) => (
                   <TextField
                     required
-                    id="outlined-basic"
                     label="Nhập lại mật khẩu"
                     variant="outlined"
                     fullWidth
@@ -202,6 +228,8 @@ const Login = () => {
             </Grid>
           </Grid>
         </form>
+
+        <OTP_G open={openModal} setOpen={setOpenModal} email={email} />
       </Box>
     </Box>
   )

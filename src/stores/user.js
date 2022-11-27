@@ -5,6 +5,7 @@ let store = (set, get) => ({
   user: {
     fullName: '',
     email: '',
+    id: '',
   },
   token: null,
   getUser: () => get().user,

@@ -7,6 +7,8 @@ import { red } from '@mui/material/colors'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 
+import { loginByGoogle } from '../../api/auth'
+
 const LoginG = () => {
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -17,7 +19,10 @@ const LoginG = () => {
           },
         })
 
-        console.log(res?.data)
+        await toast.promise(loginByGoogle({ email: res?.data?.email, fullName: res?.data?.name }), {
+          pending: 'Đang đăng nhập...',
+          success: 'Đăng nhập thành công',
+        })
       } catch (error) {
         toast.error('Đăng nhập bằng Google không thành công')
       }

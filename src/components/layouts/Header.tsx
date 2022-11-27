@@ -19,11 +19,21 @@ import userStore from '../../stores/user'
 const pages = [
   {
     id: 1,
-    name: 'Nhóm của tôi',
-    link: '/group/my-group',
+    name: 'Tất cả nhóm',
+    link: '/all-group',
   },
   {
     id: 2,
+    name: 'Nhóm của tôi',
+    link: '/my-group',
+  },
+  {
+    id: 3,
+    name: 'Nhóm đã tham gia',
+    link: '/group-joined',
+  },
+  {
+    id: 4,
     name: 'Tạo nhóm',
     link: '/group/create-group',
   },
@@ -81,7 +91,7 @@ const Header = () => {
             variant="h6"
             noWrap
             component="a"
-            href="/"
+            onClick={() => navigate('/')}
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
@@ -90,6 +100,7 @@ const Header = () => {
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
+              cursor: 'pointer',
             }}
           >
             LOGO

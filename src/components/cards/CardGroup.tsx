@@ -3,13 +3,14 @@ import { Avatar, Box, Card, CardActions, CardContent, Divider, IconButton, Typog
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { useNavigate } from 'react-router-dom'
+import { Group } from '../../types/group'
 
-const CardGroup = () => {
+const CardGroup = ({ groupId, groupName }: Group) => {
   const navigate = useNavigate()
   return (
     <Card
       onClick={() => {
-        navigate('/group/13')
+        navigate(`/group/${groupId}`)
       }}
       sx={{
         minWidth: 275,
@@ -48,7 +49,7 @@ const CardGroup = () => {
                 fontSize: '1.375rem',
               }}
             >
-              19CLC3 - NMCNTT
+              {groupName}
             </Typography>
 
             <IconButton aria-label="settings">

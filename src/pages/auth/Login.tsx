@@ -8,25 +8,39 @@ import { toast } from 'react-toastify'
 import { login } from '../../api/auth'
 import userStore from '../../stores/user'
 import LoginG from '../../components/button/LoginG'
+import OTP_G from '../../components/modal/OTP_G'
 
 const Login = () => {
   const { setDataUser } = userStore()
   const navigate = useNavigate()
   const { handleSubmit, control } = useForm()
+  const [openModal, setOpenModal] = React.useState(false)
+  const [email, setEmail] = React.useState('')
   const [buttonDisabled, setButtonDisabled] = React.useState(false)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLogin = async (data: any) => {
+    setEmail(data.email)
     setButtonDisabled(true)
-    const res = await toast.promise(login({ username: data.username, password: data.password }), {
+    const res = await toast.promise(login({ email: data.email, password: data.password }), {
       pending: 'Đang đăng nhập...',
     })
+    if (res?.data?.error?.code === 'invalid_email' || res?.data?.error?.code === 'invalid_password') {
+      toast.error('Email hoặc mật khẩu không đúng')
+      setButtonDisabled(false)
+      return
+    }
+    if (res?.data?.error?.code === 'user_inactive') {
+      toast.error('Tài khoản chưa được kích hoạt')
+      setOpenModal(true)
+      setButtonDisabled(false)
+      return
+    }
     if (res.status === 200) {
       setDataUser(res?.data?.data)
       toast.success('Đăng nhập thành công')
       navigate('/')
-    } else {
-      toast.error('Email hoặc mật khẩu không đúng')
     }
+
     setButtonDisabled(false)
   }
   return (
@@ -96,17 +110,17 @@ const Login = () => {
           >
             <Grid item xs={12}>
               <Controller
-                name="username"
+                name="email"
                 control={control}
                 defaultValue=""
                 render={({ field: { onChange, value } }) => (
                   <TextField
                     required
-                    name="username"
+                    name="email"
                     id="outlined-basic"
-                    label="Username"
+                    label="Email"
                     variant="outlined"
-                    type="text"
+                    type="email"
                     fullWidth
                     onChange={onChange}
                     value={value}
@@ -191,6 +205,8 @@ const Login = () => {
             </Grid>
           </Grid>
         </form>
+
+        <OTP_G open={openModal} setOpen={setOpenModal} email={email} />
       </Box>
     </Box>
   )

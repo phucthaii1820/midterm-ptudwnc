@@ -1,13 +1,27 @@
 import React from 'react'
 import { Button, Container, Grid, TextField, Typography } from '@mui/material'
 import { teal, red } from '@mui/material/colors'
+import { toast } from 'react-toastify'
 
 import Layout from '../../components/layouts/Layout'
 import userStore from '../../stores/user'
+import { changeInfo } from '../../api/user'
 
 const Infomation = () => {
   const { user } = userStore()
   const [isEdit, setIsEdit] = React.useState(false)
+  const [fullName, setFullName] = React.useState(user?.fullName)
+
+  const handleChangeInfomation = async () => {
+    const res = await changeInfo({ fullName })
+
+    if (res.status === 200) {
+      toast.success('Cập nhật thông tin thành công')
+    } else {
+      toast.error('Cập nhật thông tin thất bại')
+    }
+    setIsEdit(false)
+  }
 
   return (
     <Layout>
@@ -25,7 +39,15 @@ const Infomation = () => {
             <TextField value={user?.email} disabled label="Email" fullWidth />
           </Grid>
           <Grid item xs={12}>
-            <TextField value={user?.fullName} disabled={!isEdit} label="Họ và tên" fullWidth />
+            <TextField
+              value={fullName}
+              disabled={!isEdit}
+              label="Họ và tên"
+              fullWidth
+              onChange={(e) => {
+                setFullName(e.target.value)
+              }}
+            />
           </Grid>
           <Grid item xs={12}>
             {!isEdit ? (
@@ -62,9 +84,7 @@ const Infomation = () => {
                         background: teal[300],
                       },
                     }}
-                    onClick={() => {
-                      setIsEdit(false)
-                    }}
+                    onClick={handleChangeInfomation}
                   >
                     Lưu
                   </Button>
