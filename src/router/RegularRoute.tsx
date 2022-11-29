@@ -8,6 +8,7 @@ import ChangePassword from '../pages/profile/ChangePassword'
 import CreateGroup from '../pages/group/CreateGroup'
 import MyGroup from '../pages/group/MyGroup'
 import GroupJoined from '../pages/group/GroupJoined'
+import JoinGroupByLink from '../pages/group/JoinGroupByLink'
 
 const RegularRoute = () => {
   return (
@@ -23,6 +24,7 @@ const RegularRoute = () => {
         <Route path="/user/change-password" element={<ChangePassword />} />
 
         <Route path="/group/create-group" element={<CreateGroup />} />
+        <Route path="/join-group-by-link/:id" element={<JoinGroupByLink />} />
       </Routes>
     </Box>
   )

@@ -35,7 +35,7 @@ export interface DialogTitleProps {
 
 interface PropsOTP {
   open: boolean
-  setOpen: any
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
   email: string
 }
 

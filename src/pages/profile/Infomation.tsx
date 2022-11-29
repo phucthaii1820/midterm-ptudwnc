@@ -8,7 +8,7 @@ import userStore from '../../stores/user'
 import { changeInfo } from '../../api/user'
 
 const Infomation = () => {
-  const { user } = userStore()
+  const { user, refreshDataUserInfor } = userStore()
   const [isEdit, setIsEdit] = React.useState(false)
   const [fullName, setFullName] = React.useState(user?.fullName)
 
@@ -17,6 +17,7 @@ const Infomation = () => {
 
     if (res.status === 200) {
       toast.success('Cập nhật thông tin thành công')
+      refreshDataUserInfor()
     } else {
       toast.error('Cập nhật thông tin thất bại')
     }

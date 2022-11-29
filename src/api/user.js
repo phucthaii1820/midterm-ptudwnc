@@ -14,3 +14,7 @@ export const changePassword = ({ oldPassword, newPassword }) => {
     newPassword,
   })
 }
+
+export const getUserInfo = () => {
+  return HttpUtility.get(`${BASE_API}/user/profile`)
+}

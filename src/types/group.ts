@@ -5,8 +5,10 @@ export interface Group {
 
 export interface Detailgroup {
   information: {
+    id: string
     name: string
     memberNumber: number
+    currentUserRole: string
   }
   owner: {
     id: string
@@ -14,7 +16,7 @@ export interface Detailgroup {
     email: string
     role: string
   }
-  menber: [
+  members: [
     {
       id: string
       fullName: string
@@ -25,8 +27,11 @@ export interface Detailgroup {
 }
 
 export interface GroupMember {
-  //   id: string
+  id: string
   fullName: string
   email: string
   role: string
+  myRole: string
+  groupId: string
+  fetchData: () => void
 }

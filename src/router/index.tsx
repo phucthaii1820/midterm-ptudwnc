@@ -11,8 +11,8 @@ export default function WebRoute() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
+        <Route path="login" element={token ? <Navigate to="/" /> : <Login />} />
+        <Route path="register" element={token ? <Navigate to="/" /> : <Register />} />
         <Route path="/*" element={token ? <RegularRoute /> : <Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>

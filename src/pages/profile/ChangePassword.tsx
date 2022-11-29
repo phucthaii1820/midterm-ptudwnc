@@ -6,8 +6,11 @@ import { toast } from 'react-toastify'
 import Layout from '../../components/layouts/Layout'
 import { changePassword } from '../../api/user'
 import { validatePass } from '../../function/validatePass'
+import userStore from '../../stores/user'
 
 const ChangePassword = () => {
+  const { setDataUser } = userStore()
+
   const [oldPassword, setOldPassword] = React.useState('')
   const [newPassword, setNewPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
@@ -28,6 +31,7 @@ const ChangePassword = () => {
       toast.error('Mật khẩu cũ không đúng')
     } else {
       toast.success('Đổi mật khẩu thành công')
+      setDataUser(res?.data?.data)
     }
   }
 

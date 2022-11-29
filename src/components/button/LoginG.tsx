@@ -6,10 +6,15 @@ import GoogleIcon from '@mui/icons-material/Google'
 import { red } from '@mui/material/colors'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 import { loginByGoogle } from '../../api/auth'
+import userStore from '../../stores/user'
 
 const LoginG = () => {
+  const { setDataUser } = userStore()
+  const navigate = useNavigate()
+
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -19,10 +24,17 @@ const LoginG = () => {
           },
         })
 
-        await toast.promise(loginByGoogle({ email: res?.data?.email, fullName: res?.data?.name }), {
+        const res2 = await toast.promise(loginByGoogle({ email: res?.data?.email, fullName: res?.data?.name }), {
           pending: 'Đang đăng nhập...',
-          success: 'Đăng nhập thành công',
         })
+
+        if (res2?.data?.error?.code === 'account_exist') {
+          toast.error('Tài khoản đã được đăng kí')
+        } else {
+          setDataUser(res2?.data?.data)
+          navigate('/')
+          toast.success('Đăng nhập thành công')
+        }
       } catch (error) {
         toast.error('Đăng nhập bằng Google không thành công')
       }

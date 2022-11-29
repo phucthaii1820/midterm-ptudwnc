@@ -9,11 +9,9 @@ const clientId = '699395752427-0q0ou1b0i55ogrvqluosnk4hsuuuejga.apps.googleuserc
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
-  <React.StrictMode>
-    <GoogleOAuthProvider clientId={clientId}>
-      <App />
-    </GoogleOAuthProvider>
-  </React.StrictMode>,
+  <GoogleOAuthProvider clientId={clientId}>
+    <App />
+  </GoogleOAuthProvider>,
 )
 
 // If you want to start measuring performance in your app, pass a function
