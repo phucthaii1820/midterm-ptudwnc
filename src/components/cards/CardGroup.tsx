@@ -5,7 +5,7 @@ import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { useNavigate } from 'react-router-dom'
 import { Group } from '../../types/group'
 
-const CardGroup = ({ groupId, groupName }: Group) => {
+const CardGroup = ({ groupId, groupName, ownerName }: Group) => {
   const navigate = useNavigate()
   return (
     <Card
@@ -72,7 +72,7 @@ const CardGroup = ({ groupId, groupName }: Group) => {
           }}
         />
 
-        {/* <Typography
+        <Typography
           sx={{
             position: 'absolute',
             left: 0,
@@ -80,8 +80,8 @@ const CardGroup = ({ groupId, groupName }: Group) => {
           }}
           p={2}
         >
-          Võ Nguyễn
-        </Typography> */}
+          {ownerName}
+        </Typography>
       </Box>
       <CardContent
         sx={{

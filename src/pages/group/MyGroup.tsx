@@ -48,7 +48,7 @@ const MyGroup = () => {
             <Grid container spacing={2}>
               {groups?.map((item) => (
                 <Grid key={item?.groupId} item md={4} lg={3} xl={2.4}>
-                  <CardGroup groupId={item?.groupId} groupName={item?.groupName} />
+                  <CardGroup groupId={item?.groupId} groupName={item?.groupName} ownerName={item?.ownerName} />
                 </Grid>
               ))}
             </Grid>
