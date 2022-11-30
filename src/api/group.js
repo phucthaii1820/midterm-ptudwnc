@@ -53,8 +53,8 @@ export const kickUser = (groupId, userId) => {
   })
 }
 
-export const sentInviteEmail = (groupId, email) => {
+export const sentInviteEmail = (groupId, emails) => {
   return HttpUtility.post(`${BASE_API}/group/${groupId}/send-invite-email`, {
-    email,
+    emails,
   })
 }

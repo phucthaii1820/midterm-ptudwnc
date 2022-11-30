@@ -72,7 +72,7 @@ const CardGroup = ({ groupId, groupName }: Group) => {
           }}
         />
 
-        <Typography
+        {/* <Typography
           sx={{
             position: 'absolute',
             left: 0,
@@ -81,7 +81,7 @@ const CardGroup = ({ groupId, groupName }: Group) => {
           p={2}
         >
           Võ Nguyễn
-        </Typography>
+        </Typography> */}
       </Box>
       <CardContent
         sx={{

@@ -64,7 +64,7 @@ const ListMenber = () => {
     const res = await generateInviteLink(id)
 
     if (res?.data?.code === 200) {
-      setLink(`${BASE_API_FE}/${res?.data?.data?.invitationLink}`)
+      setLink(`${BASE_API_FE}/join-group-by-link/${res?.data?.data?.invitationLink}`)
       toast.success('Generate link thành công')
     }
   }

@@ -94,7 +94,7 @@ const JoinGroupByLink = () => {
               navigate('/')
             }}
           >
-            Về trang đăng nhập
+            Về trang chủ
           </Button>
         </DialogActions>
       </BootstrapDialog>

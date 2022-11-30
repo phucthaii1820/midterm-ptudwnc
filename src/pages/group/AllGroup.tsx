@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Grid, Skeleton } from '@mui/material'
+import { Box, Container, Grid, Skeleton, Typography } from '@mui/material'
 import CardGroup from '../../components/cards/CardGroup'
 import Layout from '../../components/layouts/Layout'
 import { getAllGroups } from '../../api/group'
@@ -44,13 +44,20 @@ const Home = () => {
             ))}
           </Grid>
         ) : (
-          <Grid container spacing={2}>
-            {groups?.map((item) => (
-              <Grid key={item?.groupId} item md={4} lg={3} xl={2.4}>
-                <CardGroup groupId={item?.groupId} groupName={item?.groupName} />
-              </Grid>
-            ))}
-          </Grid>
+          <Box>
+            <Grid container spacing={2}>
+              {groups?.map((item) => (
+                <Grid key={item?.groupId} item md={4} lg={3} xl={2.4}>
+                  <CardGroup groupId={item?.groupId} groupName={item?.groupName} />
+                </Grid>
+              ))}
+            </Grid>
+            {groups?.length === 0 && (
+              <Typography textAlign="center" mt={2}>
+                Bạn chưa tham gia nhóm nào.
+              </Typography>
+            )}
+          </Box>
         )}
       </Container>
     </Layout>

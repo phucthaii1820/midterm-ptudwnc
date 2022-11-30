@@ -16,6 +16,14 @@ const ChangePassword = () => {
   const [confirmPassword, setConfirmPassword] = React.useState('')
 
   const handleChangePassword = async () => {
+    if (oldPassword === '' || newPassword === '' || confirmPassword === '') {
+      toast.error('Vui lòng nhập đầy đủ thông tin')
+      return
+    }
+    if (oldPassword === newPassword) {
+      toast.error('Mật khẩu mới không được trùng với mật khẩu cũ')
+      return
+    }
     if (newPassword !== confirmPassword) {
       toast.error('Mật khẩu mới không khớp')
       return
@@ -32,6 +40,9 @@ const ChangePassword = () => {
     } else {
       toast.success('Đổi mật khẩu thành công')
       setDataUser(res?.data?.data)
+      setOldPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
     }
   }
 

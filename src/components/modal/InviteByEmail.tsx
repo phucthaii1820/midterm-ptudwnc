@@ -47,6 +47,7 @@ export default function AlertDialog({ disabled, groupId }: Props) {
     if (res?.data?.code === 200) {
       toast.success('Gửi email thành công')
       setOpen(false)
+      setEmails([])
     } else {
       toast.error('Gửi email thất bại')
     }
