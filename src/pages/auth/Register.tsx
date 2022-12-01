@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Button, Divider, Grid, TextField, Typography } from '@mui/material'
 import { teal, grey } from '@mui/material/colors'
 import React from 'react'
@@ -18,7 +19,6 @@ const Login = () => {
 
   const onSubmit = async (data: any) => {
     setEmail(data.email)
-    console.log(data)
 
     if (data.password !== data.confirm_password) {
       toast.error('Mật khẩu không khớp')
