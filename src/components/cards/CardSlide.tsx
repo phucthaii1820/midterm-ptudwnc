@@ -5,7 +5,7 @@ import BarChartIcon from '@mui/icons-material/BarChart'
 
 import { CardSlideProps } from '../../types/card'
 
-const CardSlide = ({ isSelect, index, nameSlide }: CardSlideProps) => {
+const CardSlide = ({ isSelect, index, nameSlide, id, hanldeClick }: CardSlideProps) => {
   return (
     <Box
       sx={{
@@ -34,6 +34,7 @@ const CardSlide = ({ isSelect, index, nameSlide }: CardSlideProps) => {
             background: grey[200],
           },
         }}
+        onClick={() => hanldeClick(id)}
       >
         <Box
           sx={{
