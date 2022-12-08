@@ -184,7 +184,7 @@ const DetailPresetation = () => {
                       color: grey[500],
                     }}
                   >
-                    Tạo bởi phucthai0108
+                    Tạo bởi {dataPresentation?.presentationOwnerName}
                   </Typography>
                 </Box>
               </Box>

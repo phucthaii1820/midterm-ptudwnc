@@ -36,6 +36,7 @@ export interface PropsSlide {
 export interface PropsPresentDetail {
   presentationId: string
   presentationName: string
+  presentationOwnerName: string
   slides: [PropsSlide]
 }
 
