@@ -27,7 +27,6 @@ const MyGroup = () => {
           mt: 4,
         }}
       >
-        {' '}
         {isPending ? (
           <Grid container spacing={2}>
             {[1, 2, 3, 4]?.map((item) => (

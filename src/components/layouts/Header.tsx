@@ -37,6 +37,11 @@ const pages = [
     name: 'Tạo nhóm',
     link: '/group/create-group',
   },
+  {
+    id: 5,
+    name: 'Thuyết trình',
+    link: '/presentation',
+  },
 ]
 const settings = [
   {
