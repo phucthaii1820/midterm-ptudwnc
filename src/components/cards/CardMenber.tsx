@@ -16,9 +16,9 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import { teal, grey } from '@mui/material/colors'
 import { toast } from 'react-toastify'
 
-import { GroupMember } from '../../types/group'
-import { changeRole, kickUser } from '../../api/group'
-import WarningMessage from '../modal/WarningMessage'
+import { GroupMember } from 'types/group'
+import { changeRole, kickUser } from 'api/group'
+import WarningMessage from 'components/modal/WarningMessage'
 
 const roles = [
   {

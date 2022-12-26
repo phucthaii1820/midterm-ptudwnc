@@ -4,8 +4,8 @@ import { teal } from '@mui/material/colors'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 
-import Layout from '../../components/layouts/Layout'
-import { createGroups } from '../../api/group'
+import Layout from 'components/layouts/Layout'
+import { createGroups } from 'api/group'
 
 const CreateGroup = () => {
   const [groupName, setGroupName] = React.useState('')

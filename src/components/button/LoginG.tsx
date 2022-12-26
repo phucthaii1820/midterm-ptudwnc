@@ -8,8 +8,8 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 
-import { loginByGoogle } from '../../api/auth'
-import userStore from '../../stores/user'
+import { loginByGoogle } from 'api/auth'
+import userStore from 'stores/user'
 
 const LoginG = () => {
   const { setDataUser } = userStore()

@@ -1,11 +1,15 @@
+/* eslint-disable react/self-closing-comp */
 import React from 'react'
 import { Box, Typography } from '@mui/material'
 import { grey, teal } from '@mui/material/colors'
 import BarChartIcon from '@mui/icons-material/BarChart'
 
-import { CardSlideProps } from '../../types/card'
+import { CardSlideProps } from 'types/card'
+import { TYPE_HEADING, TYPE_MULTIPLE_CHOICE, TYPE_PARAGRAPH } from 'consts/slide'
 
-const CardSlide = ({ isSelect, index, nameSlide, id, hanldeClick }: CardSlideProps) => {
+const CardSlide = ({ isSelect, index, id, hanldeClick, type, nameSlide }: CardSlideProps) => {
+  console.log(type)
+
   return (
     <Box
       sx={{
@@ -47,12 +51,60 @@ const CardSlide = ({ isSelect, index, nameSlide, id, hanldeClick }: CardSlidePro
             flexDirection: 'column',
           }}
         >
-          <BarChartIcon sx={{ fontSize: '30px', color: grey[500] }} />
-          <Typography
-            sx={{
-              fontSize: '13px',
-            }}
-          >
+          {type === TYPE_MULTIPLE_CHOICE && <BarChartIcon sx={{ fontSize: '30px', color: grey[500] }} />}
+          {type === TYPE_HEADING && (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <Box
+                sx={{
+                  width: '50px',
+                  height: '10px',
+                  background: 'black',
+                }}
+              ></Box>
+              <Box
+                sx={{
+                  width: '40px',
+                  height: '5px',
+                  background: 'gray',
+                  mt: '1px',
+                }}
+              ></Box>
+            </Box>
+          )}
+
+          {type === TYPE_PARAGRAPH && (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <Box
+                sx={{
+                  width: '40px',
+                  height: '5px',
+                  background: 'gray',
+                }}
+              ></Box>
+              <Box
+                sx={{
+                  width: '50px',
+                  height: '10px',
+                  background: 'black',
+                  mt: '1px',
+                }}
+              ></Box>
+            </Box>
+          )}
+
+          <Typography fontWeight={700} sx={{ mt: '8px', fontSize: 10 }}>
             {nameSlide}
           </Typography>
         </Box>

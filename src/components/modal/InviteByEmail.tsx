@@ -10,7 +10,7 @@ import { toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
 import { teal, grey } from '@mui/material/colors'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import { sentInviteEmail } from '../../api/group'
+import { sentInviteEmail } from 'api/group'
 
 interface PropsEmails {
   id: string

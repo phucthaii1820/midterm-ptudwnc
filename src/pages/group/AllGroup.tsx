@@ -1,9 +1,9 @@
 import React from 'react'
 import { Box, Container, Grid, Skeleton, Typography } from '@mui/material'
-import CardGroup from '../../components/cards/CardGroup'
-import Layout from '../../components/layouts/Layout'
-import { getAllGroups } from '../../api/group'
-import { Group } from '../../types/group'
+import CardGroup from 'components/cards/CardGroup'
+import Layout from 'components/layouts/Layout'
+import { getAllGroups } from 'api/group'
+import { Group } from 'types/group'
 
 const Home = () => {
   const [groups, setGroups] = React.useState([] as Group[])

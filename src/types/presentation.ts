@@ -31,6 +31,8 @@ export interface PropsSlide {
   title: string
   isSelect: boolean
   options: [PropsOption]
+  content: string
+  type: string
 }
 
 export interface PropsPresentDetail {

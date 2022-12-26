@@ -11,12 +11,10 @@ import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
 import Typography from '@mui/material/Typography'
 import { Grid, TextField } from '@mui/material'
-import { toast } from 'react-toastify'
-import { useNavigate } from 'react-router-dom'
 import { teal } from '@mui/material/colors'
-
-import { activeAccount, resendCode } from 'api/auth'
-import userStore from 'stores/user'
+import { isEmail } from 'function/validateEmail'
+import { toast } from 'react-toastify'
+import { sendCodeResetPassword } from 'api/auth'
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -31,12 +29,6 @@ export interface DialogTitleProps {
   id: string
   children?: React.ReactNode
   onClose: () => void
-}
-
-interface PropsOTP {
-  open: boolean
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
-  email: string
 }
 
 function BootstrapDialogTitle(props: DialogTitleProps) {
@@ -63,74 +55,78 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
   )
 }
 
-export default function OTP_G({ open, setOpen, email }: PropsOTP) {
-  const navigate = useNavigate()
-  const [code, setCode] = React.useState('')
-  const { setDataUser } = userStore()
+export default function OTP_G() {
+  const [email, setEmail] = React.useState('')
+  const [open, setOpen] = React.useState(false)
 
   const handleClose = () => {
     setOpen(false)
   }
 
-  const handleCode = async () => {
-    const res = await activeAccount({ email, code })
-    if (res?.data?.error?.code === 'invalid_code') {
-      toast.error('Mã code không đúng')
-      return
+  const hanldeSendCode = async () => {
+    if (!isEmail(email)) {
+      toast.error('Email không hợp lệ')
+    } else {
+      const res = await sendCodeResetPassword({ email })
+      if (res.status === 200) {
+        toast.success('Kiểm tra email để đặt lại mật khẩu')
+        setOpen(false)
+      } else {
+        toast.error('Email không tồn tại')
+      }
     }
-    if (res?.data?.data?.code === 'success') {
-      setOpen(false)
-      setDataUser(res?.data?.data?.user)
-      toast.success('Đăng kí thành công')
-      navigate('/')
-    }
-  }
-
-  const handleResend = async () => {
-    await resendCode({ email }).then(() => {
-      toast.success('Gửi lại mã thành công')
-    })
   }
 
   return (
     <div>
+      <Typography
+        textAlign="right"
+        color={teal[500]}
+        onClick={() => {
+          setOpen(true)
+        }}
+        sx={{
+          cursor: 'pointer',
+        }}
+      >
+        Quên mật khẩu?
+      </Typography>
       <BootstrapDialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
         <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
-          Nhập mã xác nhận
+          Đặt lại mật khẩu
         </BootstrapDialogTitle>
-        <DialogContent dividers>
-          <Typography gutterBottom>
-            Vui lòng kiểm tra email của bạn để tìm mã xác nhận. Mã xác nhận có độ dài 6 ký tự.
-          </Typography>
+        <DialogContent
+          dividers
+          sx={{
+            minWidth: '400px',
+          }}
+        >
           <Grid
             container
-            spacing={2}
             sx={{
-              alignItems: 'center',
+              width: '100%',
             }}
+            spacing={2}
           >
-            <Grid item xs={4}>
+            <Grid item xs={12}>
               <TextField
+                fullWidth
+                focused
                 size="small"
-                value={code}
-                label="Mã xác nhận"
+                type="email"
+                value={email}
                 onChange={(e) => {
-                  setCode(e.target.value)
+                  setEmail(e.target.value)
                 }}
+                placeholder="Nhập email của bạn"
               />
-            </Grid>
-            <Grid item xs={8}>
-              <Typography>Chúng tôi đã gửi mã xác nhận qua email: {email}</Typography>
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleResend}>
-            Gửi lại code
-          </Button>
           <Button
             autoFocus
-            onClick={handleCode}
+            onClick={hanldeSendCode}
             sx={{
               backgroundColor: teal[500],
               color: '#fff',

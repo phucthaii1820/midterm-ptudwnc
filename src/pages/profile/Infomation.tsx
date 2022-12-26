@@ -3,9 +3,9 @@ import { Button, Container, Grid, TextField, Typography } from '@mui/material'
 import { teal, red } from '@mui/material/colors'
 import { toast } from 'react-toastify'
 
-import Layout from '../../components/layouts/Layout'
-import userStore from '../../stores/user'
-import { changeInfo } from '../../api/user'
+import Layout from 'components/layouts/Layout'
+import userStore from 'stores/user'
+import { changeInfo } from 'api/user'
 
 const Infomation = () => {
   const { user, refreshDataUserInfor } = userStore()

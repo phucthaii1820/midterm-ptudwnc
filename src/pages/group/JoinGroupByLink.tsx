@@ -15,8 +15,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { styled } from '@mui/material/styles'
 import { toast } from 'react-toastify'
 
-import Layout from '../../components/layouts/Layout'
-import { joinGroupByLink } from '../../api/group'
+import Layout from 'components/layouts/Layout'
+import { joinGroupByLink } from 'api/group'
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {

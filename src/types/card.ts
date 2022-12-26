@@ -8,15 +8,17 @@ export interface CardSlideProps {
   nameSlide: string
   index: number
   hanldeClick: (id: string) => void
+  type: string
 }
 
 export interface PropCardContentSlide {
   title: string | undefined
   options: [PropsOption] | undefined
-  isConnectSocket: boolean
   socket: any
   idPresentation: string
   idSlide: string
+  type: string
+  content: string
 }
 
 export interface PropCardSettingSlide {
@@ -26,4 +28,6 @@ export interface PropCardSettingSlide {
   idSlide: string
   setDataPresentation: (data: any) => void
   fetchData: () => void
+  content: string
+  type: string
 }

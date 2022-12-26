@@ -18,13 +18,13 @@ import { teal, grey } from '@mui/material/colors'
 import { toast } from 'react-toastify'
 import LogoutIcon from '@mui/icons-material/Logout'
 
-import CardMenber from '../components/cards/CardMenber'
-import Layout from '../components/layouts/Layout'
-import { generateInviteLink, getGroupDetail, getInviteLinkById, leaveGroup } from '../api/group'
-import { Detailgroup } from '../types/group'
-import userStore from '../stores/user'
-import WarningMessage from '../components/modal/WarningMessage'
-import InviteByEmail from '../components/modal/InviteByEmail'
+import CardMenber from 'components/cards/CardMenber'
+import Layout from 'components/layouts/Layout'
+import { generateInviteLink, getGroupDetail, getInviteLinkById, leaveGroup } from 'api/group'
+import { Detailgroup } from 'types/group'
+import userStore from 'stores/user'
+import WarningMessage from 'components/modal/WarningMessage'
+import InviteByEmail from 'components/modal/InviteByEmail'
 
 const BASE_API_FE = process.env.REACT_APP_BASE_HOST_FE
 

@@ -9,12 +9,12 @@ import moment from 'moment'
 import 'moment/locale/vi'
 import { Link } from 'react-router-dom'
 
-import Layout from '../../components/layouts/Layout'
-import { createPresentation, deletePresentation, getPresentation, updatePresentation } from '../../api/presentation'
-import { PropsPresentation, PropsPresentationResponse } from '../../types/presentation'
-import userStore from '../../stores/user'
-import Loading from '../../components/Loading'
-import { ModalUpdatePresentationProps } from '../../types/Modal'
+import Layout from 'components/layouts/Layout'
+import { createPresentation, deletePresentation, getPresentation, updatePresentation } from 'api/presentation'
+import { PropsPresentation, PropsPresentationResponse } from 'types/presentation'
+import userStore from 'stores/user'
+import Loading from 'components/Loading'
+import { ModalUpdatePresentationProps } from 'types/Modal'
 
 moment.locale('vi')
 

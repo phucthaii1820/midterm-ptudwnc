@@ -5,10 +5,11 @@ import { useNavigate } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
-import { login } from '../../api/auth'
-import userStore from '../../stores/user'
-import LoginG from '../../components/button/LoginG'
-import OTP_G from '../../components/modal/OTP_G'
+import { login } from 'api/auth'
+import userStore from 'stores/user'
+import LoginG from 'components/button/LoginG'
+import OTP_G from 'components/modal/OTP_G'
+import ResetPassword from 'components/modal/ResetPasswordModal'
 
 const Login = () => {
   const { setDataUser } = userStore()
@@ -164,6 +165,10 @@ const Login = () => {
               >
                 Đăng nhập
               </Button>
+            </Grid>
+
+            <Grid item xs={12}>
+              <ResetPassword />
             </Grid>
 
             <Grid

@@ -3,10 +3,10 @@ import { Button, Container, Grid, TextField, Typography } from '@mui/material'
 import { teal } from '@mui/material/colors'
 import { toast } from 'react-toastify'
 
-import Layout from '../../components/layouts/Layout'
-import { changePassword } from '../../api/user'
-import { validatePass } from '../../function/validatePass'
-import userStore from '../../stores/user'
+import Layout from 'components/layouts/Layout'
+import { changePassword } from 'api/user'
+import { validatePass } from 'function/validatePass'
+import userStore from 'stores/user'
 
 const ChangePassword = () => {
   const { setDataUser } = userStore()

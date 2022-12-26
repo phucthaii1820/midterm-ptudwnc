@@ -1,11 +1,14 @@
 import React from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-import Login from '../pages/auth/Login'
-import Register from '../pages/auth/Register'
+import Present from 'pages/presentation/Present'
+import Login from 'pages/auth/Login'
+import Register from 'pages/auth/Register'
+import userStore from 'stores/user'
+import Vote from 'pages/presentation/Vote'
+import ResetPassword from 'pages/auth/ResetPassword'
+
 import RegularRoute from './RegularRoute'
-import userStore from '../stores/user'
-import Vote from '../pages/presentation/Vote'
 
 export default function WebRoute() {
   const { token } = userStore()
@@ -17,6 +20,8 @@ export default function WebRoute() {
         <Route path="/*" element={token ? <RegularRoute /> : <Navigate to="/login" />} />
 
         <Route path="/presentations/vote/:idP/:idS" element={<Vote />} />
+        <Route path="/presentations/present/:idP/:idS" element={<Present />} />
+        <Route path="/reset-password/:code" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   )

@@ -36,3 +36,16 @@ export const loginByGoogle = ({ email, fullName }) => {
     fullName,
   })
 }
+
+export const sendCodeResetPassword = ({ email }) => {
+  return HttpUtility.post(`${BASE_API}/auth/send-reset-password`, {
+    email,
+  })
+}
+
+export const resetPassword = ({ code, password }) => {
+  return HttpUtility.post(`${BASE_API}/auth/reset-password`, {
+    code,
+    newPassword: password,
+  })
+}

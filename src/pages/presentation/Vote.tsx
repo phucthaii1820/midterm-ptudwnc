@@ -6,8 +6,8 @@ import { useParams } from 'react-router-dom'
 import io from 'socket.io-client'
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts'
 
-import { PrropsSlideSocket } from '../../types/presentation'
-import Loading from '../../components/Loading'
+import { PrropsSlideSocket } from 'types/presentation'
+import Loading from 'components/Loading'
 
 const BASE_API = process.env.REACT_APP_BASE_HOST
 const socket = io(BASE_API?.toString() || 'http://localhost:3000')
@@ -91,7 +91,7 @@ const Vote = () => {
                 CHỌN ĐÁP ÁN
               </Typography>
               <List>
-                {data?.options.map((item) => (
+                {data?.options?.map((item) => (
                   <Button
                     key={item.index}
                     fullWidth

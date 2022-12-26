@@ -10,6 +10,8 @@ import {
   Grid,
   IconButton,
   InputAdornment,
+  Menu,
+  MenuItem,
   OutlinedInput,
   Typography,
 } from '@mui/material'
@@ -22,19 +24,17 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Modal, Space } from 'antd'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { toast } from 'react-toastify'
-import { FullScreen, useFullScreenHandle } from 'react-full-screen'
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import DeleteIcon from '@mui/icons-material/Delete'
 import io from 'socket.io-client'
 
-import Layout from '../../components/layouts/Layout'
-import CardSlide from '../../components/cards/CardSlide'
-import CardContentSlide from '../../components/cards/CardContentSlide'
-import CardSettingSlide from '../../components/cards/CardSettingSlide'
-import { createSlide, deleteSlide, getSlideOfPresent } from '../../api/presentation'
-import { PropsPresentDetail, PropsSlide } from '../../types/presentation'
-import Loading from '../../components/Loading'
-import CardContentSlidePresent from '../../components/cards/CardContentSlidePresent'
+import Layout from 'components/layouts/Layout'
+import CardSlide from 'components/cards/CardSlide'
+import CardContentSlide from 'components/cards/CardContentSlide'
+import CardSettingSlide from 'components/cards/CardSettingSlide'
+import { createSlide, deleteSlide, getSlideOfPresent } from 'api/presentation'
+import { PropsPresentDetail, PropsSlide } from 'types/presentation'
+import Loading from 'components/Loading'
+import { TYPE_MULTIPLE_CHOICE } from 'consts/slide'
 
 const BASE_API = process.env.REACT_APP_BASE_HOST
 const BASE_HOST = process.env.REACT_APP_BASE_HOST_FE
@@ -48,8 +48,11 @@ const DetailPresetation = () => {
   const [isLoadingDeleteSlide, setIsLoadingDeleteSlide] = React.useState(false)
   const [isPending, setIsPending] = React.useState(true)
   const [isModalOpenShare, setIsModalOpenShare] = React.useState(false)
-  const [isConnectSocket, setIsConnectSocket] = React.useState(false)
-  const handle = useFullScreenHandle()
+  const [anchorElCreateSlide, setAnchorElCreateSlide] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorElCreateSlide)
+  const handleClickCreateSlide = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElCreateSlide(event.currentTarget)
+  }
 
   const handleGetPresentation = async () => {
     const res = await getSlideOfPresent(id)
@@ -62,11 +65,15 @@ const DetailPresetation = () => {
             return {
               ...item,
               isSelect: true,
+              content: item?.type !== TYPE_MULTIPLE_CHOICE ? item?.options : '',
+              options: item?.type === TYPE_MULTIPLE_CHOICE ? item?.options : [],
             }
           }
           return {
             ...item,
             isSelect: false,
+            content: item?.type !== TYPE_MULTIPLE_CHOICE ? item?.options : '',
+            options: item?.type === TYPE_MULTIPLE_CHOICE ? item?.options : [],
           }
         }),
       })
@@ -74,11 +81,23 @@ const DetailPresetation = () => {
     }
   }
 
-  const handleCreateSlide = async () => {
-    setIsLoadingCreateSlide(true)
-    await createSlide(id, '', [''])
-    handleGetPresentation()
-    setIsLoadingCreateSlide(false)
+  const handleCreateSlide = async (type: any) => {
+    if (type === 1) {
+      setIsLoadingCreateSlide(true)
+      await createSlide(id, '', [''], 'multiple_choice')
+      handleGetPresentation()
+      setIsLoadingCreateSlide(false)
+    } else if (type === 2) {
+      setIsLoadingCreateSlide(true)
+      await createSlide(id, '', [''], 'paragraph')
+      handleGetPresentation()
+      setIsLoadingCreateSlide(false)
+    } else {
+      setIsLoadingCreateSlide(true)
+      await createSlide(id, '', [''], 'heading')
+      handleGetPresentation()
+      setIsLoadingCreateSlide(false)
+    }
   }
 
   const handleDeleteSlide = async () => {
@@ -122,10 +141,10 @@ const DetailPresetation = () => {
   }
 
   React.useEffect(() => {
-    if (id && !isConnectSocket) {
+    if (id) {
       handleGetPresentation()
     }
-  }, [id, isConnectSocket])
+  }, [id])
 
   return (
     <Layout>
@@ -217,7 +236,13 @@ const DetailPresetation = () => {
                     },
                   }}
                   startIcon={<PlayArrowIcon />}
-                  onClick={handle.enter}
+                  onClick={() =>
+                    navigate(
+                      `/presentations/present/${id}/${
+                        dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.id
+                      }`,
+                    )
+                  }
                 >
                   Present
                 </Button>
@@ -232,21 +257,59 @@ const DetailPresetation = () => {
               }}
             >
               <Space>
-                <Button
-                  sx={{
-                    px: 2,
-                    background: teal[500],
-                    color: 'white',
-                    '&:hover': {
-                      background: teal[300],
-                    },
-                  }}
-                  startIcon={<AddIcon />}
-                  onClick={handleCreateSlide}
-                  disabled={isLoadingCreateSlide}
-                >
-                  Tạo slide
-                </Button>
+                <Box>
+                  <Button
+                    sx={{
+                      px: 2,
+                      background: teal[500],
+                      color: 'white',
+                      '&:hover': {
+                        background: teal[300],
+                      },
+                    }}
+                    startIcon={<AddIcon />}
+                    disabled={isLoadingCreateSlide}
+                    id="basic-button"
+                    aria-controls={open ? 'basic-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? 'true' : undefined}
+                    onClick={handleClickCreateSlide}
+                  >
+                    Tạo slide
+                  </Button>
+                  <Menu
+                    anchorEl={anchorElCreateSlide}
+                    open={open}
+                    onClose={() => {
+                      setAnchorElCreateSlide(null)
+                    }}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        handleCreateSlide(1)
+                      }}
+                    >
+                      Multiple choice
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        handleCreateSlide(2)
+                      }}
+                    >
+                      Paragraph
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        handleCreateSlide(3)
+                      }}
+                    >
+                      Heading
+                    </MenuItem>
+                  </Menu>
+                </Box>
                 <Button
                   sx={{
                     px: 2,
@@ -287,6 +350,7 @@ const DetailPresetation = () => {
                       key={item.id}
                       id={item.id}
                       hanldeClick={handleClickSlide}
+                      type={item.type}
                     />
                   ))}
                 </Box>
@@ -302,12 +366,15 @@ const DetailPresetation = () => {
                   <CardContentSlide
                     title={dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.title}
                     options={dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.options}
-                    isConnectSocket={isConnectSocket}
                     socket={socket}
                     idSlide={
                       dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.id || ''
                     }
                     idPresentation={id || ''}
+                    content={
+                      dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.content || ''
+                    }
+                    type={dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.type || ''}
                   />
                 </Box>
               </Grid>
@@ -333,6 +400,10 @@ const DetailPresetation = () => {
                     }
                     setDataPresentation={setDataPresentation}
                     fetchData={handleGetPresentation}
+                    content={
+                      dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.content || ''
+                    }
+                    type={dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.type || ''}
                   />
                 </Box>
               </Grid>
@@ -372,54 +443,6 @@ const DetailPresetation = () => {
                 />
               </Box>
             </Modal>
-
-            <FullScreen
-              handle={handle}
-              onChange={(state) => {
-                setIsConnectSocket(state)
-              }}
-            >
-              <Box
-                sx={{
-                  height: '100vh',
-                  width: '100vw',
-                  background: grey[200],
-                  display: handle.active ? null : 'none',
-                }}
-              >
-                <Box
-                  sx={{
-                    height: '100%',
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    position: 'relative',
-                  }}
-                >
-                  <CardContentSlidePresent
-                    title={dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.title}
-                    options={dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.options}
-                    isConnectSocket={isConnectSocket}
-                    socket={socket}
-                    idSlide={
-                      dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.id || ''
-                    }
-                    idPresentation={id || ''}
-                  />
-                  <IconButton
-                    sx={{
-                      position: 'absolute',
-                      top: 0,
-                      right: 0,
-                    }}
-                    onClick={handle.exit}
-                  >
-                    <HighlightOffIcon fontSize="large" />
-                  </IconButton>
-                </Box>
-              </Box>
-            </FullScreen>
           </Box>
         )}
       </Container>

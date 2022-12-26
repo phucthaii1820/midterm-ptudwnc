@@ -3,7 +3,7 @@ import { Avatar, Box, Card, CardActions, CardContent, Divider, IconButton, Typog
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { useNavigate } from 'react-router-dom'
-import { Group } from '../../types/group'
+import { Group } from 'types/group'
 
 const CardGroup = ({ groupId, groupName, ownerName }: Group) => {
   const navigate = useNavigate()

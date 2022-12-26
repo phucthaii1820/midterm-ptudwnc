@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem'
 import AdbIcon from '@mui/icons-material/Adb'
 import { teal } from '@mui/material/colors'
 import { useNavigate } from 'react-router-dom'
-import userStore from '../../stores/user'
+import userStore from 'stores/user'
 
 const pages = [
   {

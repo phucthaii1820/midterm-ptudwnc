@@ -26,17 +26,19 @@ export const getSlideOfPresent = (id) => {
   return HttpUtility.get(`${BASE_API}/presentation/${id}/list-slide`)
 }
 
-export const createSlide = (id, title, contents) => {
+export const createSlide = (id, title, contents, type) => {
   return HttpUtility.post(`${BASE_API}/presentation/${id}/create-slide`, {
     title,
     contents,
+    type,
   })
 }
 
-export const updateSlide = (idPresent, idSlide, title, contents) => {
+export const updateSlide = (idPresent, idSlide, title, contents, type) => {
   return HttpUtility.post(`${BASE_API}/presentation/${idPresent}/slide/${idSlide}/edit`, {
     title,
     contents,
+    type,
   })
 }
 

@@ -1,14 +1,26 @@
 import React from 'react'
-import { Box, Button, IconButton, InputAdornment, OutlinedInput, TextField, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  SelectChangeEvent,
+  TextField,
+  Typography,
+} from '@mui/material'
 import { grey, teal } from '@mui/material/colors'
 import AddIcon from '@mui/icons-material/Add'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'react-toastify'
 import CloseIcon from '@mui/icons-material/Close'
 
-import { PropCardSettingSlide } from '../../types/card'
-import { updateSlide } from '../../api/presentation'
-import { PropsOption, PropsPresentDetail, PropsSlide } from '../../types/presentation'
+import { PropCardSettingSlide } from 'types/card'
+import { updateSlide } from 'api/presentation'
+import { PropsOption, PropsPresentDetail, PropsSlide } from 'types/presentation'
+import { TYPE_HEADING, TYPE_MULTIPLE_CHOICE, TYPE_PARAGRAPH, TYPE_SLIDE } from 'consts/slide'
 
 const CardSettingSlide = ({
   title,
@@ -17,14 +29,16 @@ const CardSettingSlide = ({
   setDataPresentation,
   idSlide,
   fetchData,
+  content,
+  type,
 }: PropCardSettingSlide) => {
   const handleUpdate = async () => {
     if (title === '') {
-      toast.error('Câu hỏi không được bỏ trống')
+      toast.error(`${type === TYPE_MULTIPLE_CHOICE ? 'Câu hỏi' : 'Tiêu đề'} không được bỏ trống`)
       return
     }
 
-    if (options.length === 0) {
+    if (options.length === 0 && type === TYPE_MULTIPLE_CHOICE) {
       toast.error('Phải có ít nhất một câu trả lời')
       return
     }
@@ -34,18 +48,33 @@ const CardSettingSlide = ({
     })
 
     for (let i = 0; i < dataOptions.length; i += 1) {
-      if (dataOptions[i] === '') {
+      if (dataOptions[i] === '' && type === TYPE_MULTIPLE_CHOICE) {
         toast.error('Câu trả lời không được bỏ trống')
         return
       }
     }
 
-    const res = await updateSlide(dataPresentation.presentationId, idSlide, title, dataOptions)
-    if (res?.data?.status === 200) {
-      toast.success('Cập nhật thành công')
-      fetchData()
+    if (content === '' && type !== TYPE_MULTIPLE_CHOICE) {
+      toast.error(`${type === TYPE_HEADING ? 'Tiêu đề phụ' : 'Nội dung'} không được bỏ trống`)
+      return
+    }
+
+    if (type === TYPE_MULTIPLE_CHOICE) {
+      const res = await updateSlide(dataPresentation.presentationId, idSlide, title, dataOptions, type)
+      if (res?.data?.status === 200) {
+        toast.success('Cập nhật thành công')
+        fetchData()
+      } else {
+        toast.error('Cập nhật thất bại')
+      }
     } else {
-      toast.error('Cập nhật thất bại')
+      const res = await updateSlide(dataPresentation.presentationId, idSlide, title, content, type)
+      if (res?.data?.status === 200) {
+        toast.success('Cập nhật thành công')
+        fetchData()
+      } else {
+        toast.error('Cập nhật thất bại')
+      }
     }
   }
 
@@ -111,7 +140,42 @@ const CardSettingSlide = ({
           Lưu
         </Button>
       </Box>
-      <Typography fontWeight={700}>Câu hỏi</Typography>
+      <Typography fontWeight={700}>Loại</Typography>
+      <Select
+        size="small"
+        fullWidth
+        value={type}
+        onChange={(event: SelectChangeEvent) => {
+          setDataPresentation((preState: PropsPresentDetail) => {
+            const data = preState?.slides
+            const newData = data?.map((item: PropsSlide) => {
+              if (item.isSelect) {
+                return {
+                  ...item,
+                  type: event.target.value,
+                }
+              }
+              return {
+                ...item,
+              }
+            })
+            return {
+              ...preState,
+              slides: newData,
+            }
+          })
+        }}
+      >
+        {TYPE_SLIDE.map((item) => (
+          <MenuItem key={item.value} value={item.value}>
+            {item.label}
+          </MenuItem>
+        ))}
+      </Select>
+      <Typography fontWeight={700} mt={3}>
+        {type === TYPE_MULTIPLE_CHOICE && 'Câu hỏi'}
+        {type !== TYPE_MULTIPLE_CHOICE && 'Tiêu đề'}
+      </Typography>
       <TextField
         value={title}
         onChange={(e) => {
@@ -136,16 +200,20 @@ const CardSettingSlide = ({
         }}
         size="small"
         fullWidth
-        placeholder="Câu hỏi"
+        placeholder={type === TYPE_MULTIPLE_CHOICE ? 'Câu hỏi' : 'Tiêu đề'}
         sx={{
           mt: 1,
         }}
+        inputProps={{ maxLength: 40 }}
       />
       <Typography fontWeight={700} mt={3}>
-        Đáp án
+        {type === TYPE_MULTIPLE_CHOICE && 'Đáp án'}
+        {type === TYPE_HEADING && 'Tiêu đề phụ'}
+        {type === TYPE_PARAGRAPH && 'Nội dung'}
       </Typography>
 
-      {options !== undefined &&
+      {type === TYPE_MULTIPLE_CHOICE &&
+        options !== undefined &&
         options?.length > 0 &&
         options?.map((item: PropsOption, index: number) => (
           <OutlinedInput
@@ -216,22 +284,91 @@ const CardSettingSlide = ({
           />
         ))}
 
-      <Button
-        fullWidth
-        sx={{
-          mt: 1,
-          px: 2,
-          background: grey[500],
-          color: 'white',
-          '&:hover': {
-            background: grey[400],
-          },
-        }}
-        startIcon={<AddIcon />}
-        onClick={createOption}
-      >
-        Thêm đáp án
-      </Button>
+      {type === TYPE_HEADING && (
+        <TextField
+          value={content}
+          onChange={(e) => {
+            setDataPresentation((preState: PropsPresentDetail) => {
+              const data = preState?.slides
+              const newData = data?.map((item: PropsSlide) => {
+                if (item.isSelect) {
+                  return {
+                    ...item,
+                    content: e.target.value,
+                  }
+                }
+                return {
+                  ...item,
+                }
+              })
+              return {
+                ...preState,
+                slides: newData,
+              }
+            })
+          }}
+          size="small"
+          fullWidth
+          placeholder="Tiêu đề phụ"
+          sx={{
+            mt: 1,
+          }}
+          inputProps={{ maxLength: 70 }}
+        />
+      )}
+
+      {type === TYPE_PARAGRAPH && (
+        <TextField
+          multiline
+          rows={4}
+          value={content}
+          onChange={(e) => {
+            setDataPresentation((preState: PropsPresentDetail) => {
+              const data = preState?.slides
+              const newData = data?.map((item: PropsSlide) => {
+                if (item.isSelect) {
+                  return {
+                    ...item,
+                    content: e.target.value,
+                  }
+                }
+                return {
+                  ...item,
+                }
+              })
+              return {
+                ...preState,
+                slides: newData,
+              }
+            })
+          }}
+          size="small"
+          fullWidth
+          placeholder="Nội dung"
+          sx={{
+            mt: 1,
+          }}
+          inputProps={{ maxLength: 700 }}
+        />
+      )}
+      {type === TYPE_MULTIPLE_CHOICE && (
+        <Button
+          fullWidth
+          sx={{
+            mt: 1,
+            px: 2,
+            background: grey[500],
+            color: 'white',
+            '&:hover': {
+              background: grey[400],
+            },
+          }}
+          startIcon={<AddIcon />}
+          onClick={createOption}
+        >
+          Thêm đáp án
+        </Button>
+      )}
     </Box>
   )
 }

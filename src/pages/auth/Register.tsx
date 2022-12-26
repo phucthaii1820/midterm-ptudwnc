@@ -6,10 +6,10 @@ import { useNavigate } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
-import LoginG from '../../components/button/LoginG'
-import OTP_G from '../../components/modal/OTP_G'
-import { register } from '../../api/auth'
-import { validatePass } from '../../function/validatePass'
+import LoginG from 'components/button/LoginG'
+import OTP_G from 'components/modal/OTP_G'
+import { register } from 'api/auth'
+import { validatePass } from 'function/validatePass'
 
 const Login = () => {
   const navigate = useNavigate()
