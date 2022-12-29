@@ -8,8 +8,6 @@ import { CardSlideProps } from 'types/card'
 import { TYPE_HEADING, TYPE_MULTIPLE_CHOICE, TYPE_PARAGRAPH } from 'consts/slide'
 
 const CardSlide = ({ isSelect, index, id, hanldeClick, type, nameSlide }: CardSlideProps) => {
-  console.log(type)
-
   return (
     <Box
       sx={{
