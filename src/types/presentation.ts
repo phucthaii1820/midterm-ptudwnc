@@ -43,6 +43,10 @@ export interface PropsPresentDetail {
 }
 
 export interface PrropsSlideSocket {
-  options: [PropsOption]
+  options: [PropsOption] | []
   title: string
+  isSelected: boolean
+  type: string
+  content: string
+  id: string
 }
