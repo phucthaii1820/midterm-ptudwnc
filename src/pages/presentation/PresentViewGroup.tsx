@@ -35,7 +35,6 @@ const PresentViewGroup = () => {
         groupId: idG,
       },
       (options: any) => {
-        console.log('options', options)
         for (let i = 0; i < options.length; i += 1) {
           if (options[i].isSelected) {
             setData({
@@ -76,7 +75,9 @@ const PresentViewGroup = () => {
       }
     })
 
-    socket.on('group:end-present', () => {
+    socket.on('group:end-present', (res: any) => {
+      console.log(res)
+
       setEndPresent(true)
     })
 

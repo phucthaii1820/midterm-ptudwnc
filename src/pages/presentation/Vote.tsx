@@ -1,13 +1,16 @@
 import React from 'react'
-import { Box, Button, Grid, List, Typography } from '@mui/material'
+import { Badge, Box, Button, Grid, IconButton, List, Typography } from '@mui/material'
 import { grey, teal } from '@mui/material/colors'
 import { useParams } from 'react-router-dom'
 import io from 'socket.io-client'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import ChatIcon from '@mui/icons-material/Chat'
 
-import { PrropsSlideSocket } from 'types/presentation'
+import { PropsMessage, PrropsSlideSocket } from 'types/presentation'
 import Loading from 'components/Loading'
 import { TYPE_PARAGRAPH, TYPE_MULTIPLE_CHOICE, TYPE_HEADING } from 'consts/slide'
+import { Popover } from 'antd'
+import ChatPresent from 'components/chat/ChatPresent'
 
 const BASE_API = process.env.REACT_APP_BASE_HOST
 const socket = io(BASE_API?.toString() || 'http://localhost:3000')
@@ -19,6 +22,22 @@ const Vote = () => {
   const [isPending, setIsPending] = React.useState<boolean>(true)
   const [disabledChoose, setDisabledChoose] = React.useState<boolean>(false)
   const [endPresent, setEndPresent] = React.useState<boolean>(false)
+  const [listMessage, setListMessage] = React.useState<PropsMessage[]>()
+  const [openChat, setOpenChat] = React.useState(false)
+  const [notifiChat, setNotifiChat] = React.useState(0)
+
+  const handleChat = (message: string) => {
+    socket.emit(
+      'personal:chat',
+      {
+        presentationId: idP,
+        message,
+      },
+      (dataChat: PropsMessage[]) => {
+        if (dataChat?.length > 0) setListMessage(dataChat)
+      },
+    )
+  }
 
   React.useEffect(() => {
     socket.emit(
@@ -40,6 +59,16 @@ const Vote = () => {
           }
         }
         setIsPending(false)
+      },
+    )
+
+    socket.emit(
+      'personal:get-chat',
+      {
+        presentationId: idP,
+      },
+      (dataChat: PropsMessage[]) => {
+        if (dataChat?.length > 0) setListMessage(dataChat)
       },
     )
 
@@ -69,6 +98,13 @@ const Vote = () => {
       }
     })
 
+    socket.on('personal:chat', (dataChat: PropsMessage[]) => {
+      if (dataChat?.length > 0) {
+        setListMessage(dataChat)
+        setNotifiChat((prevState) => prevState + 1)
+      }
+    })
+
     socket.on('personal:end-present', () => {
       console.log('end-present')
 
@@ -81,6 +117,10 @@ const Vote = () => {
       socket.off('stat')
     }
   }, [])
+
+  React.useEffect(() => {
+    setNotifiChat(0)
+  }, [openChat])
 
   return (
     <Box
@@ -288,6 +328,36 @@ const Vote = () => {
           )}
         </Box>
       )}
+
+      <Popover
+        content={
+          <div>
+            <ChatPresent handleChat={handleChat} listMessage={listMessage || []} />
+          </div>
+        }
+        title="Chat"
+        trigger="click"
+        open={openChat}
+        onOpenChange={() => {
+          setOpenChat(!openChat)
+        }}
+      >
+        <IconButton
+          sx={{
+            position: 'fixed',
+            bottom: 20,
+            right: 140,
+          }}
+        >
+          <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
+            <ChatIcon
+              sx={{
+                fontSize: 30,
+              }}
+            />
+          </Badge>
+        </IconButton>
+      </Popover>
     </Box>
   )
 }

@@ -50,3 +50,8 @@ export interface PrropsSlideSocket {
   content: string
   id: string
 }
+
+export interface PropsMessage {
+  content: string
+  createdAt: string
+}

@@ -1,22 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Container, Grid, IconButton, InputAdornment, OutlinedInput, Typography } from '@mui/material'
+import { Badge, Box, Container, Grid, IconButton, InputAdornment, OutlinedInput, Typography } from '@mui/material'
 import { teal } from '@mui/material/colors'
 import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import io from 'socket.io-client'
-import { PrropsSlideSocket } from 'types/presentation'
+import { PropsMessage, PrropsSlideSocket } from 'types/presentation'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 import ShareIcon from '@mui/icons-material/Share'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import ChatIcon from '@mui/icons-material/Chat'
+import { Modal, Popover } from 'antd'
 
 import userStore from 'stores/user'
 import { TYPE_PARAGRAPH, TYPE_MULTIPLE_CHOICE, TYPE_HEADING } from 'consts/slide'
 import Loading from 'components/Loading'
-import { Modal } from 'antd'
 import { toast } from 'react-toastify'
+import ChatPresent from 'components/chat/ChatPresent'
 
 const BASE_HOST = process.env.REACT_APP_BASE_HOST_FE
 const BASE_API = process.env.REACT_APP_BASE_HOST
@@ -35,6 +37,9 @@ const Present = () => {
   const [prevSlide, setPrevSlide] = React.useState<string>('')
   const [isPending, setIsPending] = React.useState(true)
   const [isModalOpenShare, setIsModalOpenShare] = React.useState(false)
+  const [openChat, setOpenChat] = React.useState(false)
+  const [listMessage, setListMessage] = React.useState<PropsMessage[]>()
+  const [notifiChat, setNotifiChat] = React.useState(0)
 
   const handleNext = () => {
     if (nextSlide) {
@@ -88,6 +93,19 @@ const Present = () => {
     }
   }
 
+  const handleChat = (message: string) => {
+    socket.emit(
+      'personal:chat',
+      {
+        presentationId: idP,
+        message,
+      },
+      (dataChat: PropsMessage[]) => {
+        if (dataChat?.length > 0) setListMessage(dataChat)
+      },
+    )
+  }
+
   React.useEffect(() => {
     socket.emit(
       'personal:start-present',
@@ -112,6 +130,16 @@ const Present = () => {
       },
     )
 
+    socket.emit(
+      'personal:get-chat',
+      {
+        presentationId: idP,
+      },
+      (dataChat: PropsMessage[]) => {
+        if (dataChat?.length > 0) setListMessage(dataChat)
+      },
+    )
+
     socket.on('personal:choose-option', (options: any) => {
       for (let i = 0; i < options.length; i += 1) {
         if (options[i].isSelected) {
@@ -122,6 +150,13 @@ const Present = () => {
           })
           break
         }
+      }
+    })
+
+    socket.on('personal:chat', (dataChat: PropsMessage[]) => {
+      if (dataChat?.length > 0) {
+        setListMessage(dataChat)
+        setNotifiChat((prevState) => prevState + 1)
       }
     })
 
@@ -139,8 +174,12 @@ const Present = () => {
     }
   }, [])
 
+  React.useEffect(() => {
+    setNotifiChat(0)
+  }, [openChat])
+
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="xl" sx={{ height: '100vh' }}>
       {isPending ? (
         <Box
           sx={{
@@ -324,6 +363,38 @@ const Present = () => {
           </Box>
         </Box>
       )}
+      {!isPending && (
+        <Popover
+          content={
+            <div>
+              <ChatPresent handleChat={handleChat} listMessage={listMessage || []} />
+            </div>
+          }
+          title="Chat"
+          trigger="click"
+          open={openChat}
+          onOpenChange={() => {
+            setOpenChat(!openChat)
+          }}
+        >
+          <IconButton
+            sx={{
+              position: 'fixed',
+              bottom: 20,
+              right: 140,
+            }}
+          >
+            <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
+              <ChatIcon
+                sx={{
+                  fontSize: 30,
+                }}
+              />
+            </Badge>
+          </IconButton>
+        </Popover>
+      )}
+
       <Modal title="Chia sẻ" open={isModalOpenShare} onCancel={() => setIsModalOpenShare(false)} footer={null}>
         <Box
           sx={{
