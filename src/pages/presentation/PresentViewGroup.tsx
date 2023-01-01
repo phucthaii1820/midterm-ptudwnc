@@ -5,15 +5,21 @@ import { useParams } from 'react-router-dom'
 import io from 'socket.io-client'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
+import userStore from 'stores/user'
 import { PrropsSlideSocket } from 'types/presentation'
 import Loading from 'components/Loading'
 import { TYPE_PARAGRAPH, TYPE_MULTIPLE_CHOICE, TYPE_HEADING } from 'consts/slide'
 
 const BASE_API = process.env.REACT_APP_BASE_HOST
-const socket = io(BASE_API?.toString() || 'http://localhost:3000')
+const socket = io(BASE_API?.toString() || 'http://localhost:3000', {
+  transports: ['websocket'],
+  auth: {
+    token: userStore.getState().token,
+  },
+})
 
-const Vote = () => {
-  const { idP, idS } = useParams()
+const PresentViewGroup = () => {
+  const { idP, idS, idG } = useParams()
   const [valueSeclect, setValueSeclect] = React.useState<number>(0)
   const [data, setData] = React.useState<PrropsSlideSocket>()
   const [isPending, setIsPending] = React.useState<boolean>(true)
@@ -22,12 +28,14 @@ const Vote = () => {
 
   React.useEffect(() => {
     socket.emit(
-      'personal:join-present',
+      'group:join-present',
       {
         presentationId: idP,
         slideId: idS,
+        groupId: idG,
       },
       (options: any) => {
+        console.log('options', options)
         for (let i = 0; i < options.length; i += 1) {
           if (options[i].isSelected) {
             setData({
@@ -39,11 +47,10 @@ const Vote = () => {
             break
           }
         }
-        setIsPending(false)
       },
     )
 
-    socket.on('personal:transfer-slide', (options: any) => {
+    socket.on('group:transfer-slide', (options: any) => {
       for (let i = 0; i < options.length; i += 1) {
         if (options[i].isSelected) {
           setData({
@@ -56,7 +63,7 @@ const Vote = () => {
       }
     })
 
-    socket.on('personal:choose-option', (options: any) => {
+    socket.on('group:choose-option', (options: any) => {
       for (let i = 0; i < options.length; i += 1) {
         if (options[i].isSelected) {
           setData({
@@ -69,9 +76,7 @@ const Vote = () => {
       }
     })
 
-    socket.on('personal:end-present', () => {
-      console.log('end-present')
-
+    socket.on('group:end-present', () => {
       setEndPresent(true)
     })
 
@@ -192,11 +197,12 @@ const Vote = () => {
                         onClick={() => {
                           setDisabledChoose(true)
                           socket.emit(
-                            'personal:choose-option',
+                            'group:choose-option',
                             {
                               presentationId: idP,
                               slideId: data?.id,
                               index: valueSeclect,
+                              groupId: idG,
                             },
                             (options: any) => {
                               for (let i = 0; i < options.length; i += 1) {
@@ -292,4 +298,4 @@ const Vote = () => {
   )
 }
 
-export default Vote
+export default PresentViewGroup

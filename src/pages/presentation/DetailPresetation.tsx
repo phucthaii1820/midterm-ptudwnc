@@ -17,9 +17,8 @@ import {
 } from '@mui/material'
 import { grey, red, teal } from '@mui/material/colors'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import ShareIcon from '@mui/icons-material/Share'
+// import ShareIcon from '@mui/icons-material/Share'
 import AddIcon from '@mui/icons-material/Add'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Modal, Space } from 'antd'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -35,6 +34,7 @@ import { createSlide, deleteSlide, getSlideOfPresent } from 'api/presentation'
 import { PropsPresentDetail, PropsSlide } from 'types/presentation'
 import Loading from 'components/Loading'
 import { TYPE_MULTIPLE_CHOICE } from 'consts/slide'
+import MenuTypePresent from 'components/menu/MenuTypePresent'
 
 const BASE_API = process.env.REACT_APP_BASE_HOST
 const BASE_HOST = process.env.REACT_APP_BASE_HOST_FE
@@ -208,8 +208,12 @@ const DetailPresetation = () => {
                 </Box>
               </Box>
 
-              <Box>
-                <Button
+              <Box
+                sx={{
+                  display: 'flex',
+                }}
+              >
+                {/* <Button
                   sx={{
                     mx: 0.5,
                     px: 2,
@@ -223,29 +227,11 @@ const DetailPresetation = () => {
                   startIcon={<ShareIcon />}
                 >
                   Chia sẻ
-                </Button>
-
-                <Button
-                  sx={{
-                    ml: 0.5,
-                    px: 2,
-                    background: teal[500],
-                    color: 'white',
-                    '&:hover': {
-                      background: teal[300],
-                    },
-                  }}
-                  startIcon={<PlayArrowIcon />}
-                  onClick={() =>
-                    navigate(
-                      `/presentations/present/${id}/${
-                        dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.id
-                      }`,
-                    )
-                  }
-                >
-                  Present
-                </Button>
+                </Button> */}
+                <MenuTypePresent
+                  idS={dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.id || ''}
+                  idP={dataPresentation?.presentationId || ''}
+                />
               </Box>
             </Box>
             <Divider />

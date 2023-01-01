@@ -12,6 +12,9 @@ import JoinGroupByLink from 'pages/group/JoinGroupByLink'
 import ListPresentation from 'pages/presentation/ListPresentation'
 import DetailPresetation from 'pages/presentation/DetailPresetation'
 
+import PresentGroup from 'pages/presentation/PresentGroup'
+import PresentViewGroup from 'pages/presentation/PresentViewGroup'
+
 const RegularRoute = () => {
   return (
     <Box>
@@ -30,6 +33,9 @@ const RegularRoute = () => {
 
         <Route path="/presentation" element={<ListPresentation />} />
         <Route path="/presentation/detail/:id" element={<DetailPresetation />} />
+
+        <Route path="/presentations/:idG/present/:idP/:idS" element={<PresentGroup />} />
+        <Route path="/presentations/:idG/view/:idP/:idS" element={<PresentViewGroup />} />
       </Routes>
     </Box>
   )

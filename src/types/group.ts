@@ -2,6 +2,7 @@ export interface Group {
   groupId: string
   groupName: string
   ownerName: string
+  role: string
 }
 
 export interface Detailgroup {
