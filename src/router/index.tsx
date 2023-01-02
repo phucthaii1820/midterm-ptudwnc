@@ -5,7 +5,7 @@ import Present from 'pages/presentation/Present'
 import Login from 'pages/auth/Login'
 import Register from 'pages/auth/Register'
 import userStore from 'stores/user'
-import Vote from 'pages/presentation/Vote'
+import Vote from 'pages/presentation/View'
 import ResetPassword from 'pages/auth/ResetPassword'
 
 import RegularRoute from './RegularRoute'
@@ -19,7 +19,7 @@ export default function WebRoute() {
         <Route path="register" element={token ? <Navigate to="/" /> : <Register />} />
         <Route path="/*" element={token ? <RegularRoute /> : <Navigate to="/login" />} />
 
-        <Route path="/presentations/vote/:idP/:idS" element={<Vote />} />
+        <Route path="/presentations/view/:idP/:idS" element={<Vote />} />
         <Route path="/presentations/present/:idP/:idS" element={<Present />} />
         <Route path="/reset-password/:code" element={<ResetPassword />} />
       </Routes>

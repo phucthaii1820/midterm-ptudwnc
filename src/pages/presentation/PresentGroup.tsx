@@ -1,22 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Container, Grid, IconButton, InputAdornment, OutlinedInput, Typography } from '@mui/material'
+import { Badge, Box, Container, Grid, IconButton, InputAdornment, OutlinedInput, Typography } from '@mui/material'
 import { teal } from '@mui/material/colors'
 import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import io from 'socket.io-client'
-import { PrropsSlideSocket } from 'types/presentation'
+import { PropsMessage, PrropsSlideSocket } from 'types/presentation'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 import ShareIcon from '@mui/icons-material/Share'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import { Modal, Popover } from 'antd'
+import ChatIcon from '@mui/icons-material/Chat'
 
 import userStore from 'stores/user'
 import { TYPE_PARAGRAPH, TYPE_MULTIPLE_CHOICE, TYPE_HEADING } from 'consts/slide'
 import Loading from 'components/Loading'
-import { Modal } from 'antd'
 import { toast } from 'react-toastify'
+import ChatPresent from 'components/chat/ChatPresent'
 
 const BASE_HOST = process.env.REACT_APP_BASE_HOST_FE
 const BASE_API = process.env.REACT_APP_BASE_HOST
@@ -35,6 +37,15 @@ const PresentGroup = () => {
   const [prevSlide, setPrevSlide] = React.useState<string>('')
   const [isPending, setIsPending] = React.useState(true)
   const [isModalOpenShare, setIsModalOpenShare] = React.useState(false)
+  const [openChat, setOpenChat] = React.useState(false)
+  const [listMessage, setListMessage] = React.useState<PropsMessage[]>([])
+  const [notifiChat, setNotifiChat] = React.useState(0)
+  const [isHasMore, setIsHasMore] = React.useState(true)
+  const [newMessage, setNewMessage] = React.useState({
+    content: '',
+    createdAt: '',
+    id: '',
+  })
 
   const handleNext = () => {
     if (nextSlide) {
@@ -90,6 +101,39 @@ const PresentGroup = () => {
     }
   }
 
+  const handleChat = (message: string) => {
+    socket.emit(
+      'group:chat',
+      {
+        groupId: idG,
+        presentationId: idP,
+        message,
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        createdAt: listMessage[listMessage?.length - 1]?.createdAt,
+      },
+      (dataChat: PropsMessage) => {
+        if (dataChat?.content !== '') setListMessage([dataChat, ...listMessage])
+      },
+    )
+  }
+
+  const handleGetChat = () => {
+    socket.emit(
+      'personal:get-chat',
+      {
+        presentationId: idP,
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        createdAt: listMessage[listMessage?.length - 1]?.createdAt,
+      },
+      (dataChat: PropsMessage[]) => {
+        if (dataChat?.length > 0) {
+          setListMessage(dataChat)
+          if (dataChat?.length < 10) setIsHasMore(false)
+        } else setIsHasMore(false)
+      },
+    )
+  }
+
   React.useEffect(() => {
     socket.emit(
       'group:start-present',
@@ -115,6 +159,26 @@ const PresentGroup = () => {
       },
     )
 
+    socket.emit(
+      'group:get-chat',
+      {
+        presentationId: idP,
+        groupId: idG,
+      },
+      (dataChat: PropsMessage[]) => {
+        if (dataChat?.length > 0) {
+          setListMessage(dataChat)
+          if (dataChat?.length < 10) setIsHasMore(false)
+        } else setIsHasMore(false)
+      },
+    )
+
+    socket.on('group:chat', (dataChat: PropsMessage) => {
+      if (dataChat?.content !== '') {
+        setNewMessage(dataChat)
+      }
+    })
+
     socket.on('group:choose-option', (options: any) => {
       for (let i = 0; i < options.length; i += 1) {
         if (options[i].isSelected) {
@@ -136,6 +200,17 @@ const PresentGroup = () => {
       })
     }
   }, [])
+
+  React.useEffect(() => {
+    setNotifiChat(0)
+  }, [openChat])
+
+  React.useEffect(() => {
+    if (newMessage?.content !== '') {
+      setListMessage([newMessage, ...listMessage])
+      setNotifiChat((prevState) => prevState + 1)
+    }
+  }, [newMessage])
 
   return (
     <Container maxWidth="xl">
@@ -322,6 +397,44 @@ const PresentGroup = () => {
           </Box>
         </Box>
       )}
+
+      {!isPending && (
+        <Popover
+          content={
+            <div>
+              <ChatPresent
+                handleChat={handleChat}
+                listMessage={listMessage || []}
+                handleGetChat={handleGetChat}
+                isHasMore={isHasMore}
+              />
+            </div>
+          }
+          title="Chat"
+          trigger="click"
+          open={openChat}
+          onOpenChange={() => {
+            setOpenChat(!openChat)
+          }}
+        >
+          <IconButton
+            sx={{
+              position: 'fixed',
+              bottom: 20,
+              right: 140,
+            }}
+          >
+            <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
+              <ChatIcon
+                sx={{
+                  fontSize: 30,
+                }}
+              />
+            </Badge>
+          </IconButton>
+        </Popover>
+      )}
+
       <Modal title="Chia sẻ" open={isModalOpenShare} onCancel={() => setIsModalOpenShare(false)} footer={null}>
         <Box
           sx={{

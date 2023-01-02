@@ -38,8 +38,14 @@ const Present = () => {
   const [isPending, setIsPending] = React.useState(true)
   const [isModalOpenShare, setIsModalOpenShare] = React.useState(false)
   const [openChat, setOpenChat] = React.useState(false)
-  const [listMessage, setListMessage] = React.useState<PropsMessage[]>()
+  const [listMessage, setListMessage] = React.useState<PropsMessage[]>([])
   const [notifiChat, setNotifiChat] = React.useState(0)
+  const [newMessage, setNewMessage] = React.useState({
+    content: '',
+    createdAt: '',
+    id: '',
+  })
+  const [isHasMore, setIsHasMore] = React.useState(true)
 
   const handleNext = () => {
     if (nextSlide) {
@@ -99,9 +105,28 @@ const Present = () => {
       {
         presentationId: idP,
         message,
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        createdAt: listMessage[listMessage?.length - 1]?.createdAt,
+      },
+      (dataChat: PropsMessage) => {
+        if (dataChat?.content !== '') setListMessage([dataChat, ...listMessage])
+      },
+    )
+  }
+
+  const handleGetChat = () => {
+    socket.emit(
+      'personal:get-chat',
+      {
+        presentationId: idP,
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        createdAt: listMessage[listMessage?.length - 1]?.createdAt,
       },
       (dataChat: PropsMessage[]) => {
-        if (dataChat?.length > 0) setListMessage(dataChat)
+        if (dataChat?.length > 0) {
+          setListMessage(dataChat)
+          if (dataChat?.length < 10) setIsHasMore(false)
+        } else setIsHasMore(false)
       },
     )
   }
@@ -136,7 +161,10 @@ const Present = () => {
         presentationId: idP,
       },
       (dataChat: PropsMessage[]) => {
-        if (dataChat?.length > 0) setListMessage(dataChat)
+        if (dataChat?.length > 0) {
+          setListMessage(dataChat)
+          if (dataChat?.length < 10) setIsHasMore(false)
+        } else setIsHasMore(false)
       },
     )
 
@@ -153,10 +181,9 @@ const Present = () => {
       }
     })
 
-    socket.on('personal:chat', (dataChat: PropsMessage[]) => {
-      if (dataChat?.length > 0) {
-        setListMessage(dataChat)
-        setNotifiChat((prevState) => prevState + 1)
+    socket.on('personal:chat', (dataChat: PropsMessage) => {
+      if (dataChat?.content !== '') {
+        setNewMessage(dataChat)
       }
     })
 
@@ -177,6 +204,13 @@ const Present = () => {
   React.useEffect(() => {
     setNotifiChat(0)
   }, [openChat])
+
+  React.useEffect(() => {
+    if (newMessage?.content !== '') {
+      setListMessage([newMessage, ...listMessage])
+      setNotifiChat((prevState) => prevState + 1)
+    }
+  }, [newMessage])
 
   return (
     <Container maxWidth="xl" sx={{ height: '100vh' }}>
@@ -367,7 +401,12 @@ const Present = () => {
         <Popover
           content={
             <div>
-              <ChatPresent handleChat={handleChat} listMessage={listMessage || []} />
+              <ChatPresent
+                handleChat={handleChat}
+                listMessage={listMessage || []}
+                handleGetChat={handleGetChat}
+                isHasMore={isHasMore}
+              />
             </div>
           }
           title="Chat"
@@ -404,7 +443,7 @@ const Present = () => {
           <OutlinedInput
             fullWidth
             size="small"
-            value={`${BASE_HOST}/presentations/vote/${idP}/${data?.id}`}
+            value={`${BASE_HOST}/presentations/view/${idP}/${data?.id}`}
             disabled
             sx={{
               mt: 1,
@@ -413,7 +452,7 @@ const Present = () => {
               <InputAdornment position="end">
                 <IconButton
                   onClick={() => {
-                    navigator.clipboard.writeText(`${BASE_HOST}/presentations/vote/${idP}/${data?.id}`)
+                    navigator.clipboard.writeText(`${BASE_HOST}/presentations/view/${idP}/${data?.id}`)
                     toast.success('Đã copy link')
                   }}
                 >

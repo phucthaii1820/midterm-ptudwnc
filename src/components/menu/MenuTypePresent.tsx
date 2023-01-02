@@ -11,6 +11,8 @@ import { Select, SelectChangeEvent } from '@mui/material'
 import { getAllGroups } from 'api/group'
 import { Group } from 'types/group'
 import { TYPE_CO_OWNER, TYPE_OWNER } from 'consts/role'
+import { checkGroupPresent } from 'api/presentation'
+import { toast } from 'react-toastify'
 
 interface MenuTypePresentProps {
   idS: string
@@ -42,6 +44,15 @@ export default function MenuTypePresent({ idP, idS }: MenuTypePresentProps) {
         }
       }
       setGroups(tempGroups)
+    }
+  }
+
+  const handlePresent = async () => {
+    const res = await checkGroupPresent(selectGroup)
+    if (res?.data?.status === 201 && !res?.data?.data?.isPresent) {
+      navigate(`/presentations/${selectGroup}/present/${idP}/${idS}`)
+    } else {
+      toast.error('Nhóm này đang có người trình chiếu')
     }
   }
 
@@ -118,7 +129,7 @@ export default function MenuTypePresent({ idP, idS }: MenuTypePresentProps) {
           }}
           fullWidth
           disabled={selectGroup === ''}
-          onClick={() => navigate(`/presentations/${selectGroup}/present/${idP}/${idS}`)}
+          onClick={handlePresent}
         >
           Trình chiếu
         </Button>

@@ -54,4 +54,5 @@ export interface PrropsSlideSocket {
 export interface PropsMessage {
   content: string
   createdAt: string
+  id: string
 }

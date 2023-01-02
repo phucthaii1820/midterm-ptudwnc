@@ -45,3 +45,9 @@ export const updateSlide = (idPresent, idSlide, title, contents, type) => {
 export const deleteSlide = (idPresent, idSlide) => {
   return HttpUtility.post(`${BASE_API}/presentation/${idPresent}/slide/${idSlide}/delete`)
 }
+
+export const checkGroupPresent = (id) => {
+  return HttpUtility.post(`${BASE_API}/group/check-group-present`, {
+    groupId: id,
+  })
+}

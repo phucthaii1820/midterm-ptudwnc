@@ -22,9 +22,15 @@ const Vote = () => {
   const [isPending, setIsPending] = React.useState<boolean>(true)
   const [disabledChoose, setDisabledChoose] = React.useState<boolean>(false)
   const [endPresent, setEndPresent] = React.useState<boolean>(false)
-  const [listMessage, setListMessage] = React.useState<PropsMessage[]>()
+  const [listMessage, setListMessage] = React.useState<PropsMessage[]>([])
   const [openChat, setOpenChat] = React.useState(false)
   const [notifiChat, setNotifiChat] = React.useState(0)
+  const [newMessage, setNewMessage] = React.useState({
+    content: '',
+    createdAt: '',
+    id: '',
+  })
+  const [isHasMore, setIsHasMore] = React.useState(true)
 
   const handleChat = (message: string) => {
     socket.emit(
@@ -32,9 +38,28 @@ const Vote = () => {
       {
         presentationId: idP,
         message,
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        createdAt: listMessage[listMessage?.length - 1]?.createdAt,
+      },
+      (dataChat: PropsMessage) => {
+        if (dataChat?.content !== '') setListMessage([dataChat, ...listMessage])
+      },
+    )
+  }
+
+  const handleGetChat = () => {
+    socket.emit(
+      'personal:get-chat',
+      {
+        presentationId: idP,
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        createdAt: listMessage[listMessage?.length - 1]?.createdAt,
       },
       (dataChat: PropsMessage[]) => {
-        if (dataChat?.length > 0) setListMessage(dataChat)
+        if (dataChat?.length > 0) {
+          setListMessage(dataChat)
+          if (dataChat?.length < 10) setIsHasMore(false)
+        } else setIsHasMore(false)
       },
     )
   }
@@ -68,7 +93,10 @@ const Vote = () => {
         presentationId: idP,
       },
       (dataChat: PropsMessage[]) => {
-        if (dataChat?.length > 0) setListMessage(dataChat)
+        if (dataChat?.length > 0) {
+          setListMessage(dataChat)
+          if (dataChat?.length < 10) setIsHasMore(false)
+        } else setIsHasMore(false)
       },
     )
 
@@ -98,16 +126,13 @@ const Vote = () => {
       }
     })
 
-    socket.on('personal:chat', (dataChat: PropsMessage[]) => {
-      if (dataChat?.length > 0) {
-        setListMessage(dataChat)
-        setNotifiChat((prevState) => prevState + 1)
+    socket.on('personal:chat', (dataChat: PropsMessage) => {
+      if (dataChat?.content !== '') {
+        setNewMessage(dataChat)
       }
     })
 
     socket.on('personal:end-present', () => {
-      console.log('end-present')
-
       setEndPresent(true)
     })
 
@@ -121,6 +146,13 @@ const Vote = () => {
   React.useEffect(() => {
     setNotifiChat(0)
   }, [openChat])
+
+  React.useEffect(() => {
+    if (newMessage?.content !== '') {
+      setListMessage([newMessage, ...listMessage])
+      setNotifiChat((prevState) => prevState + 1)
+    }
+  }, [newMessage])
 
   return (
     <Box
@@ -328,36 +360,42 @@ const Vote = () => {
           )}
         </Box>
       )}
-
-      <Popover
-        content={
-          <div>
-            <ChatPresent handleChat={handleChat} listMessage={listMessage || []} />
-          </div>
-        }
-        title="Chat"
-        trigger="click"
-        open={openChat}
-        onOpenChange={() => {
-          setOpenChat(!openChat)
-        }}
-      >
-        <IconButton
-          sx={{
-            position: 'fixed',
-            bottom: 20,
-            right: 140,
+      {!isPending && !endPresent && (
+        <Popover
+          content={
+            <div>
+              <ChatPresent
+                handleChat={handleChat}
+                listMessage={listMessage || []}
+                handleGetChat={handleGetChat}
+                isHasMore={isHasMore}
+              />
+            </div>
+          }
+          title="Chat"
+          trigger="click"
+          open={openChat}
+          onOpenChange={() => {
+            setOpenChat(!openChat)
           }}
         >
-          <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
-            <ChatIcon
-              sx={{
-                fontSize: 30,
-              }}
-            />
-          </Badge>
-        </IconButton>
-      </Popover>
+          <IconButton
+            sx={{
+              position: 'fixed',
+              bottom: 20,
+              right: 140,
+            }}
+          >
+            <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
+              <ChatIcon
+                sx={{
+                  fontSize: 30,
+                }}
+              />
+            </Badge>
+          </IconButton>
+        </Popover>
+      )}
     </Box>
   )
 }

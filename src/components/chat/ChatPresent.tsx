@@ -1,15 +1,20 @@
 import React from 'react'
-import { Box, Divider, List, ListItem, ListItemText, TextField } from '@mui/material'
+import { Box, CircularProgress, Divider, List, ListItem, ListItemText, TextField } from '@mui/material'
 
 import { PropsMessage } from 'types/presentation'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import moment from 'moment'
 
 interface Props {
   // eslint-disable-next-line no-unused-vars
   handleChat: (message: string) => void
   listMessage: PropsMessage[]
+  handleGetChat: () => void
+  isHasMore: boolean
 }
 
-const ChatPresent = ({ handleChat, listMessage }: Props) => {
+const ChatPresent = ({ handleChat, listMessage, handleGetChat, isHasMore }: Props) => {
+  const value = true
   const [message, setMessage] = React.useState<string>('')
 
   const handleEnter = (e: any) => {
@@ -27,22 +32,53 @@ const ChatPresent = ({ handleChat, listMessage }: Props) => {
       }}
     >
       <Box
+        id="scrollableDiv"
         sx={{
-          height: '370px',
-          overflow: 'auto',
+          height: '350px',
+          overflowY: 'scroll',
+          display: 'flex',
+          flexDirection: 'column-reverse',
+          p: 2,
+          pb: 0,
+          mt: 1,
         }}
       >
-        <List>
-          {listMessage?.map((item) => (
-            <Box key={item?.createdAt}>
-              <ListItem>
-                <ListItemText primary={item?.content} secondary={item?.createdAt} />
-              </ListItem>
-              <Divider />
+        <InfiniteScroll
+          dataLength={listMessage?.length}
+          next={() => {
+            handleGetChat()
+          }}
+          style={{ display: 'flex', flexDirection: 'column-reverse', overflow: 'hidden' }}
+          inverse={value}
+          hasMore={isHasMore}
+          loader={
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <CircularProgress size={30} />
             </Box>
-          ))}
-        </List>
+          }
+          scrollableTarget="scrollableDiv"
+        >
+          <List>
+            {listMessage
+              ?.slice()
+              ?.reverse()
+              ?.map((item) => (
+                <Box key={item?.id}>
+                  <ListItem>
+                    <ListItemText primary={item?.content} secondary={moment(item?.createdAt).fromNow()} />
+                  </ListItem>
+                  <Divider />
+                </Box>
+              ))}
+          </List>
+        </InfiniteScroll>
       </Box>
+
       <Box
         sx={{
           height: '30px',

@@ -181,7 +181,7 @@ const DetailPresetation = () => {
                   alignItems: 'center',
                 }}
               >
-                <IconButton onClick={() => navigate(-1)}>
+                <IconButton onClick={() => navigate('/presentation')}>
                   <ArrowBackIcon />
                 </IconButton>
                 <Box
@@ -213,21 +213,6 @@ const DetailPresetation = () => {
                   display: 'flex',
                 }}
               >
-                {/* <Button
-                  sx={{
-                    mx: 0.5,
-                    px: 2,
-                    background: grey[500],
-                    color: 'white',
-                    '&:hover': {
-                      background: grey[400],
-                    },
-                  }}
-                  onClick={() => setIsModalOpenShare(true)}
-                  startIcon={<ShareIcon />}
-                >
-                  Chia sẻ
-                </Button> */}
                 <MenuTypePresent
                   idS={dataPresentation?.slides?.filter((item: PropsSlide) => item.isSelect === true)[0]?.id || ''}
                   idP={dataPresentation?.presentationId || ''}
