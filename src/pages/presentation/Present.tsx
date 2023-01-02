@@ -5,20 +5,22 @@ import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import io from 'socket.io-client'
-import { PropsMessage, PrropsSlideSocket } from 'types/presentation'
+import { PropsMessage, PropsQuestion, PrropsSlideSocket, QuestionList } from 'types/presentation'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 import ShareIcon from '@mui/icons-material/Share'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import ChatIcon from '@mui/icons-material/Chat'
-import { Modal, Popover } from 'antd'
+import QuizIcon from '@mui/icons-material/Quiz'
+import { Modal, Popover, Space } from 'antd'
 
 import userStore from 'stores/user'
 import { TYPE_PARAGRAPH, TYPE_MULTIPLE_CHOICE, TYPE_HEADING } from 'consts/slide'
 import Loading from 'components/Loading'
 import { toast } from 'react-toastify'
 import ChatPresent from 'components/chat/ChatPresent'
+import QuestionPresent from 'components/question/QuestionPresentOnwer'
 
 const BASE_HOST = process.env.REACT_APP_BASE_HOST_FE
 const BASE_API = process.env.REACT_APP_BASE_HOST
@@ -38,6 +40,8 @@ const Present = () => {
   const [isPending, setIsPending] = React.useState(true)
   const [isModalOpenShare, setIsModalOpenShare] = React.useState(false)
   const [openChat, setOpenChat] = React.useState(false)
+  const [openQuestion, setOpenQuestion] = React.useState(false)
+
   const [listMessage, setListMessage] = React.useState<PropsMessage[]>([])
   const [notifiChat, setNotifiChat] = React.useState(0)
   const [newMessage, setNewMessage] = React.useState({
@@ -46,6 +50,8 @@ const Present = () => {
     id: '',
   })
   const [isHasMore, setIsHasMore] = React.useState(true)
+  const [answeredQuestionList, setAnsweredQuestionList] = React.useState<PropsQuestion[]>([])
+  const [unAnsweredQuestionList, setUnAnsweredQuestionList] = React.useState<PropsQuestion[]>([])
 
   const handleNext = () => {
     if (nextSlide) {
@@ -131,6 +137,20 @@ const Present = () => {
     )
   }
 
+  const handleMarkQuestion = (questionId: string) => {
+    socket.emit(
+      'personal:mark-as-read',
+      {
+        presentationId: idP,
+        questionId,
+      },
+      (dataChat: QuestionList) => {
+        setAnsweredQuestionList(dataChat?.answeredQuestionList)
+        setUnAnsweredQuestionList(dataChat?.unAnsweredQuestionList)
+      },
+    )
+  }
+
   React.useEffect(() => {
     socket.emit(
       'personal:start-present',
@@ -168,6 +188,17 @@ const Present = () => {
       },
     )
 
+    socket.emit(
+      'personal:get-question',
+      {
+        presentationId: idP,
+      },
+      (dataChat: QuestionList) => {
+        setAnsweredQuestionList(dataChat?.answeredQuestionList)
+        setUnAnsweredQuestionList(dataChat?.unAnsweredQuestionList)
+      },
+    )
+
     socket.on('personal:choose-option', (options: any) => {
       for (let i = 0; i < options.length; i += 1) {
         if (options[i].isSelected) {
@@ -185,6 +216,21 @@ const Present = () => {
       if (dataChat?.content !== '') {
         setNewMessage(dataChat)
       }
+    })
+
+    socket.on('personal:post-question', (dataChat: QuestionList) => {
+      setAnsweredQuestionList(dataChat?.answeredQuestionList)
+      setUnAnsweredQuestionList(dataChat?.unAnsweredQuestionList)
+    })
+
+    socket.on('personal:mark-as-read', (dataChat: QuestionList) => {
+      setAnsweredQuestionList(dataChat?.answeredQuestionList)
+      setUnAnsweredQuestionList(dataChat?.unAnsweredQuestionList)
+    })
+
+    socket.on('personal:vote-question', (dataChat: QuestionList) => {
+      setAnsweredQuestionList(dataChat?.answeredQuestionList)
+      setUnAnsweredQuestionList(dataChat?.unAnsweredQuestionList)
     })
 
     return () => {
@@ -398,42 +444,73 @@ const Present = () => {
         </Box>
       )}
       {!isPending && (
-        <Popover
-          content={
-            <div>
-              <ChatPresent
-                handleChat={handleChat}
-                listMessage={listMessage || []}
-                handleGetChat={handleGetChat}
-                isHasMore={isHasMore}
-              />
-            </div>
-          }
-          title="Chat"
-          trigger="click"
-          open={openChat}
-          onOpenChange={() => {
-            setOpenChat(!openChat)
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 20,
+            right: '125px',
           }}
         >
-          <IconButton
-            sx={{
-              position: 'fixed',
-              bottom: 20,
-              right: 140,
-            }}
-          >
-            <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
-              <ChatIcon
-                sx={{
-                  fontSize: 30,
-                }}
-              />
-            </Badge>
-          </IconButton>
-        </Popover>
-      )}
+          <Space>
+            <Popover
+              content={
+                <div>
+                  <ChatPresent
+                    handleChat={handleChat}
+                    listMessage={listMessage || []}
+                    handleGetChat={handleGetChat}
+                    isHasMore={isHasMore}
+                  />
+                </div>
+              }
+              title="Chat"
+              trigger="click"
+              open={openChat}
+              onOpenChange={() => {
+                setOpenChat(!openChat)
+              }}
+            >
+              <IconButton>
+                <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
+                  <ChatIcon
+                    sx={{
+                      fontSize: 30,
+                    }}
+                  />
+                </Badge>
+              </IconButton>
+            </Popover>
 
+            <Popover
+              content={
+                <div>
+                  <QuestionPresent
+                    answeredQuestionList={answeredQuestionList}
+                    unAnsweredQuestionList={unAnsweredQuestionList}
+                    handleMarkQuestion={handleMarkQuestion}
+                  />
+                </div>
+              }
+              title="Question"
+              trigger="click"
+              open={openQuestion}
+              onOpenChange={() => {
+                setOpenQuestion(!openQuestion)
+              }}
+            >
+              <IconButton>
+                <Badge badgeContent={0} color="primary">
+                  <QuizIcon
+                    sx={{
+                      fontSize: 30,
+                    }}
+                  />
+                </Badge>
+              </IconButton>
+            </Popover>
+          </Space>
+        </Box>
+      )}
       <Modal title="Chia sẻ" open={isModalOpenShare} onCancel={() => setIsModalOpenShare(false)} footer={null}>
         <Box
           sx={{

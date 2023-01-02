@@ -56,3 +56,16 @@ export interface PropsMessage {
   createdAt: string
   id: string
 }
+
+export interface PropsQuestion {
+  content: string
+  createdAt: string
+  id: string
+  isAnswer: boolean
+  voteQuantity: number
+}
+
+export interface QuestionList {
+  answeredQuestionList: [PropsQuestion]
+  unAnsweredQuestionList: [PropsQuestion]
+}

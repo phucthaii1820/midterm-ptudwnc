@@ -1,3 +1,4 @@
+/* eslint-disable no-unsafe-optional-chaining */
 import React from 'react'
 import { Badge, Box, Button, Grid, IconButton, List, Typography } from '@mui/material'
 import { grey, teal } from '@mui/material/colors'
@@ -5,12 +6,16 @@ import { useParams } from 'react-router-dom'
 import io from 'socket.io-client'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import ChatIcon from '@mui/icons-material/Chat'
+import QuizIcon from '@mui/icons-material/Quiz'
 
-import { PropsMessage, PrropsSlideSocket } from 'types/presentation'
+import { PropsMessage, PropsQuestion, PrropsSlideSocket, QuestionList } from 'types/presentation'
 import Loading from 'components/Loading'
 import { TYPE_PARAGRAPH, TYPE_MULTIPLE_CHOICE, TYPE_HEADING } from 'consts/slide'
-import { Popover } from 'antd'
+import { Popover, Space } from 'antd'
 import ChatPresent from 'components/chat/ChatPresent'
+// import QuestionPresent from 'components/question/QuestionPresentOnwer'
+import QuestionView from 'components/question/QuestionView'
+import { sortByTime, sortByVotes } from 'function/presentation'
 
 const BASE_API = process.env.REACT_APP_BASE_HOST
 const socket = io(BASE_API?.toString() || 'http://localhost:3000')
@@ -24,6 +29,7 @@ const Vote = () => {
   const [endPresent, setEndPresent] = React.useState<boolean>(false)
   const [listMessage, setListMessage] = React.useState<PropsMessage[]>([])
   const [openChat, setOpenChat] = React.useState(false)
+  const [openQuestion, setOpenQuestion] = React.useState(false)
   const [notifiChat, setNotifiChat] = React.useState(0)
   const [newMessage, setNewMessage] = React.useState({
     content: '',
@@ -31,6 +37,8 @@ const Vote = () => {
     id: '',
   })
   const [isHasMore, setIsHasMore] = React.useState(true)
+  const [listQuestion, setListQuestion] = React.useState<PropsQuestion[]>([])
+  const [sort, setSort] = React.useState('1')
 
   const handleChat = (message: string) => {
     socket.emit(
@@ -38,11 +46,39 @@ const Vote = () => {
       {
         presentationId: idP,
         message,
-        // eslint-disable-next-line no-unsafe-optional-chaining
+
         createdAt: listMessage[listMessage?.length - 1]?.createdAt,
       },
       (dataChat: PropsMessage) => {
         if (dataChat?.content !== '') setListMessage([dataChat, ...listMessage])
+      },
+    )
+  }
+
+  const handleQuestion = (message: string) => {
+    socket.emit(
+      'personal:post-question',
+      {
+        presentationId: idP,
+        message,
+      },
+      (dataChat: QuestionList) => {
+        if (sort === '1') setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByTime))
+        else setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByVotes))
+      },
+    )
+  }
+
+  const handleVoteQuestion = (questionId: string) => {
+    socket.emit(
+      'personal:vote-question',
+      {
+        presentationId: idP,
+        questionId,
+      },
+      (dataChat: QuestionList) => {
+        if (sort === '1') setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByTime))
+        else setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByVotes))
       },
     )
   }
@@ -52,7 +88,7 @@ const Vote = () => {
       'personal:get-chat',
       {
         presentationId: idP,
-        // eslint-disable-next-line no-unsafe-optional-chaining
+
         createdAt: listMessage[listMessage?.length - 1]?.createdAt,
       },
       (dataChat: PropsMessage[]) => {
@@ -100,6 +136,17 @@ const Vote = () => {
       },
     )
 
+    socket.emit(
+      'personal:get-question',
+      {
+        presentationId: idP,
+      },
+      (dataChat: QuestionList) => {
+        if (sort === '1') setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByTime))
+        else setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByVotes))
+      },
+    )
+
     socket.on('personal:transfer-slide', (options: any) => {
       for (let i = 0; i < options.length; i += 1) {
         if (options[i].isSelected) {
@@ -134,6 +181,21 @@ const Vote = () => {
 
     socket.on('personal:end-present', () => {
       setEndPresent(true)
+    })
+
+    socket.on('personal:post-question', (dataChat: QuestionList) => {
+      if (sort === '1') setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByTime))
+      else setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByVotes))
+    })
+
+    socket.on('personal:vote-question', (dataChat: QuestionList) => {
+      if (sort === '1') setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByTime))
+      else setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByVotes))
+    })
+
+    socket.on('personal:mark-as-read', (dataChat: QuestionList) => {
+      if (sort === '1') setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByTime))
+      else setListQuestion(dataChat?.unAnsweredQuestionList.sort(sortByVotes))
     })
 
     return () => {
@@ -361,40 +423,66 @@ const Vote = () => {
         </Box>
       )}
       {!isPending && !endPresent && (
-        <Popover
-          content={
-            <div>
-              <ChatPresent
-                handleChat={handleChat}
-                listMessage={listMessage || []}
-                handleGetChat={handleGetChat}
-                isHasMore={isHasMore}
-              />
-            </div>
-          }
-          title="Chat"
-          trigger="click"
-          open={openChat}
-          onOpenChange={() => {
-            setOpenChat(!openChat)
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 20,
+            right: '125px',
           }}
         >
-          <IconButton
-            sx={{
-              position: 'fixed',
-              bottom: 20,
-              right: 140,
-            }}
-          >
-            <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
-              <ChatIcon
-                sx={{
-                  fontSize: 30,
-                }}
-              />
-            </Badge>
-          </IconButton>
-        </Popover>
+          <Space>
+            <Popover
+              content={
+                <div>
+                  <ChatPresent
+                    handleChat={handleChat}
+                    listMessage={listMessage || []}
+                    handleGetChat={handleGetChat}
+                    isHasMore={isHasMore}
+                  />
+                </div>
+              }
+              title="Chat"
+              trigger="click"
+              open={openChat}
+              onOpenChange={() => {
+                setOpenChat(!openChat)
+              }}
+            >
+              <IconButton>
+                <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
+                  <ChatIcon
+                    sx={{
+                      fontSize: 30,
+                    }}
+                  />
+                </Badge>
+              </IconButton>
+            </Popover>
+            <IconButton
+              onClick={() => {
+                setOpenQuestion(!openQuestion)
+              }}
+            >
+              <Badge badgeContent={0} color="primary">
+                <QuizIcon
+                  sx={{
+                    fontSize: 30,
+                  }}
+                />
+              </Badge>
+            </IconButton>
+            <QuestionView
+              openQuestion={openQuestion}
+              setOpenQuestion={setOpenQuestion}
+              handleQuestion={handleQuestion}
+              listQuestion={listQuestion}
+              sort={sort}
+              setSort={setSort}
+              handleVoteQuestion={handleVoteQuestion}
+            />
+          </Space>
+        </Box>
       )}
     </Box>
   )
