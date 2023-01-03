@@ -41,7 +41,7 @@ const Present = () => {
   const [isModalOpenShare, setIsModalOpenShare] = React.useState(false)
   const [openChat, setOpenChat] = React.useState(false)
   const [openQuestion, setOpenQuestion] = React.useState(false)
-
+  const [checkPermission, setCheckPermission] = React.useState(false)
   const [listMessage, setListMessage] = React.useState<PropsMessage[]>([])
   const [notifiChat, setNotifiChat] = React.useState(0)
   const [newMessage, setNewMessage] = React.useState({
@@ -159,17 +159,22 @@ const Present = () => {
         slideId: idS,
       },
       (options: any) => {
-        for (let i = 0; i < options.length; i += 1) {
-          if (options[i].isSelected) {
-            setData({
-              ...options[i],
-              content: options[i]?.type !== TYPE_MULTIPLE_CHOICE ? options[i]?.options : '',
-              options: options[i]?.type === TYPE_MULTIPLE_CHOICE ? options[i]?.options : [],
-            })
-            setNextSlide(options[i + 1]?.id)
-            setPrevSlide(options[i - 1]?.id)
-            setIsPending(false)
-            break
+        if (options?.error?.code === 'slide_not_found') {
+          setCheckPermission(true)
+          setIsPending(false)
+        } else {
+          for (let i = 0; i < options.length; i += 1) {
+            if (options[i].isSelected) {
+              setData({
+                ...options[i],
+                content: options[i]?.type !== TYPE_MULTIPLE_CHOICE ? options[i]?.options : '',
+                options: options[i]?.type === TYPE_MULTIPLE_CHOICE ? options[i]?.options : [],
+              })
+              setNextSlide(options[i + 1]?.id)
+              setPrevSlide(options[i - 1]?.id)
+              setIsPending(false)
+              break
+            }
           }
         }
       },
@@ -277,238 +282,257 @@ const Present = () => {
             padding: '50px',
           }}
         >
-          <Box
-            sx={{
-              height: '100%',
-              width: '100%',
-              backgroundColor: 'white',
-              padding: 2,
-              position: 'relative',
-            }}
-          >
+          {checkPermission ? (
+            <Box>
+              <Typography textAlign="center" fontWeight={700}>
+                Bạn không đủ quyền truy cập
+              </Typography>
+              <Typography
+                textAlign="center"
+                fontWeight={700}
+                onClick={() => {
+                  navigate('/')
+                }}
+                sx={{
+                  cursor: 'pointer',
+                  color: teal[500],
+                }}
+              >
+                Về trang chủ
+              </Typography>
+            </Box>
+          ) : (
             <Box
               sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
+                height: '100%',
+                width: '100%',
+                backgroundColor: 'white',
+                padding: 2,
+                position: 'relative',
               }}
             >
-              <IconButton onClick={() => setIsModalOpenShare(true)}>
-                <ShareIcon
-                  sx={{
-                    fontSize: 30,
-                  }}
-                />
-              </IconButton>
-              <IconButton
-                onClick={() => {
-                  navigate(`/presentation/detail/${idP}`)
-                }}
-              >
-                <CloseIcon
-                  sx={{
-                    fontSize: 40,
-                  }}
-                />
-              </IconButton>
-            </Box>
-
-            <Grid
-              container
-              sx={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-              spacing={2}
-            >
-              <Grid item xs={1}>
-                <IconButton onClick={handlePrev} disabled={prevSlide === undefined}>
-                  <ChevronLeftIcon
-                    sx={{
-                      fontSize: 60,
-                    }}
-                  />
-                </IconButton>
-              </Grid>
-              <Grid
-                item
-                xs={10}
+              <Box
                 sx={{
-                  height: '550px',
-                  width: '100%',
-                  backgroundColor: 'white',
-                  padding: 2,
-                  position: 'relative',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
                 }}
               >
-                {data?.type === TYPE_MULTIPLE_CHOICE && (
-                  <Box>
-                    <Typography
-                      mb={2}
-                      variant="h5"
-                      sx={{
-                        textAlign: 'center',
-                        fontWeight: 700,
-                      }}
-                    >
-                      {data?.title}
-                    </Typography>
-                    <ResponsiveContainer width="100%" aspect={5.0 / 3.0} height="100%">
-                      <BarChart data={data?.options}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="content" />
-                        <YAxis />
-                        <Tooltip />
-                        {/* <Legend /> */}
-                        <Bar dataKey="chooseNumber" fill={teal[500]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </Box>
-                )}
-
-                {data?.type === TYPE_HEADING && (
-                  <Box
+                <IconButton onClick={() => setIsModalOpenShare(true)}>
+                  <ShareIcon
                     sx={{
-                      position: 'absolute',
-                      top: 'calc(50% - 100px)',
-                      width: '100%',
-                      left: 0,
-                    }}
-                  >
-                    <Typography
-                      mb={2}
-                      variant="h4"
-                      sx={{
-                        textAlign: 'center',
-                        fontWeight: 700,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {data?.title}
-                    </Typography>
-                    <Typography
-                      mb={2}
-                      variant="h6"
-                      sx={{
-                        textAlign: 'center',
-                        fontWeight: 700,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {data?.content}
-                    </Typography>
-                  </Box>
-                )}
-
-                {data?.type === TYPE_PARAGRAPH && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: 'calc(50% - 100px)',
-                      width: '100%',
-                      left: 0,
-                    }}
-                  >
-                    <Typography
-                      mb={2}
-                      variant="h4"
-                      sx={{
-                        textAlign: 'center',
-                        fontWeight: 700,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {data?.title}
-                    </Typography>
-                    <Typography
-                      mb={2}
-                      sx={{
-                        textAlign: 'center',
-                      }}
-                    >
-                      {data?.content}
-                    </Typography>
-                  </Box>
-                )}
-              </Grid>
-              <Grid item xs={1}>
-                <IconButton onClick={handleNext} disabled={nextSlide === undefined}>
-                  <ChevronRightIcon
-                    sx={{
-                      fontSize: 60,
+                      fontSize: 30,
                     }}
                   />
                 </IconButton>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      )}
-      {!isPending && (
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 20,
-            right: '125px',
-          }}
-        >
-          <Space>
-            <Popover
-              content={
-                <div>
-                  <ChatPresent
-                    handleChat={handleChat}
-                    listMessage={listMessage || []}
-                    handleGetChat={handleGetChat}
-                    isHasMore={isHasMore}
-                  />
-                </div>
-              }
-              title="Chat"
-              trigger="click"
-              open={openChat}
-              onOpenChange={() => {
-                setOpenChat(!openChat)
-              }}
-            >
-              <IconButton>
-                <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
-                  <ChatIcon
+                <IconButton
+                  onClick={() => {
+                    navigate(`/presentation/detail/${idP}`)
+                  }}
+                >
+                  <CloseIcon
                     sx={{
-                      fontSize: 30,
+                      fontSize: 40,
                     }}
                   />
-                </Badge>
-              </IconButton>
-            </Popover>
+                </IconButton>
+              </Box>
 
-            <Popover
-              content={
-                <div>
-                  <QuestionPresent
-                    answeredQuestionList={answeredQuestionList}
-                    unAnsweredQuestionList={unAnsweredQuestionList}
-                    handleMarkQuestion={handleMarkQuestion}
-                  />
-                </div>
-              }
-              title="Question"
-              trigger="click"
-              open={openQuestion}
-              onOpenChange={() => {
-                setOpenQuestion(!openQuestion)
-              }}
-            >
-              <IconButton>
-                <Badge badgeContent={0} color="primary">
-                  <QuizIcon
-                    sx={{
-                      fontSize: 30,
+              <Grid
+                container
+                sx={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+                spacing={2}
+              >
+                <Grid item xs={1}>
+                  <IconButton onClick={handlePrev} disabled={prevSlide === undefined}>
+                    <ChevronLeftIcon
+                      sx={{
+                        fontSize: 60,
+                      }}
+                    />
+                  </IconButton>
+                </Grid>
+                <Grid
+                  item
+                  xs={10}
+                  sx={{
+                    height: '550px',
+                    width: '100%',
+                    backgroundColor: 'white',
+                    padding: 2,
+                    position: 'relative',
+                  }}
+                >
+                  {data?.type === TYPE_MULTIPLE_CHOICE && (
+                    <Box>
+                      <Typography
+                        mb={2}
+                        variant="h5"
+                        sx={{
+                          textAlign: 'center',
+                          fontWeight: 700,
+                        }}
+                      >
+                        {data?.title}
+                      </Typography>
+                      <ResponsiveContainer width="100%" aspect={5.0 / 3.0} height="100%">
+                        <BarChart data={data?.options}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="content" />
+                          <YAxis />
+                          <Tooltip />
+                          {/* <Legend /> */}
+                          <Bar dataKey="chooseNumber" fill={teal[500]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </Box>
+                  )}
+
+                  {data?.type === TYPE_HEADING && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 'calc(50% - 100px)',
+                        width: '100%',
+                        left: 0,
+                      }}
+                    >
+                      <Typography
+                        mb={2}
+                        variant="h4"
+                        sx={{
+                          textAlign: 'center',
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {data?.title}
+                      </Typography>
+                      <Typography
+                        mb={2}
+                        variant="h6"
+                        sx={{
+                          textAlign: 'center',
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {data?.content}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {data?.type === TYPE_PARAGRAPH && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 'calc(50% - 100px)',
+                        width: '100%',
+                        left: 0,
+                      }}
+                    >
+                      <Typography
+                        mb={2}
+                        variant="h4"
+                        sx={{
+                          textAlign: 'center',
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {data?.title}
+                      </Typography>
+                      <Typography
+                        mb={2}
+                        sx={{
+                          textAlign: 'center',
+                        }}
+                      >
+                        {data?.content}
+                      </Typography>
+                    </Box>
+                  )}
+                </Grid>
+                <Grid item xs={1}>
+                  <IconButton onClick={handleNext} disabled={nextSlide === undefined}>
+                    <ChevronRightIcon
+                      sx={{
+                        fontSize: 60,
+                      }}
+                    />
+                  </IconButton>
+                </Grid>
+              </Grid>
+              <Box
+                sx={{
+                  position: 'fixed',
+                  bottom: 20,
+                  right: '125px',
+                }}
+              >
+                <Space>
+                  <Popover
+                    content={
+                      <div>
+                        <ChatPresent
+                          handleChat={handleChat}
+                          listMessage={listMessage || []}
+                          handleGetChat={handleGetChat}
+                          isHasMore={isHasMore}
+                        />
+                      </div>
+                    }
+                    title="Chat"
+                    trigger="click"
+                    open={openChat}
+                    onOpenChange={() => {
+                      setOpenChat(!openChat)
                     }}
-                  />
-                </Badge>
-              </IconButton>
-            </Popover>
-          </Space>
+                  >
+                    <IconButton>
+                      <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
+                        <ChatIcon
+                          sx={{
+                            fontSize: 30,
+                          }}
+                        />
+                      </Badge>
+                    </IconButton>
+                  </Popover>
+
+                  <Popover
+                    content={
+                      <div>
+                        <QuestionPresent
+                          answeredQuestionList={answeredQuestionList}
+                          unAnsweredQuestionList={unAnsweredQuestionList}
+                          handleMarkQuestion={handleMarkQuestion}
+                        />
+                      </div>
+                    }
+                    title="Question"
+                    trigger="click"
+                    open={openQuestion}
+                    onOpenChange={() => {
+                      setOpenQuestion(!openQuestion)
+                    }}
+                  >
+                    <IconButton>
+                      <Badge badgeContent={0} color="primary">
+                        <QuizIcon
+                          sx={{
+                            fontSize: 30,
+                          }}
+                        />
+                      </Badge>
+                    </IconButton>
+                  </Popover>
+                </Space>
+              </Box>
+            </Box>
+          )}
         </Box>
       )}
       <Modal title="Chia sẻ" open={isModalOpenShare} onCancel={() => setIsModalOpenShare(false)} footer={null}>

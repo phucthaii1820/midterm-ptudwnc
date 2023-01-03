@@ -2,7 +2,7 @@
 import React from 'react'
 import { Badge, Box, Button, Grid, IconButton, List, Typography } from '@mui/material'
 import { grey, teal } from '@mui/material/colors'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import io from 'socket.io-client'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import ChatIcon from '@mui/icons-material/Chat'
@@ -21,6 +21,7 @@ const BASE_API = process.env.REACT_APP_BASE_HOST
 const socket = io(BASE_API?.toString() || 'http://localhost:3000')
 
 const Vote = () => {
+  const navigate = useNavigate()
   const { idP, idS } = useParams()
   const [valueSeclect, setValueSeclect] = React.useState<number>(0)
   const [data, setData] = React.useState<PrropsSlideSocket>()
@@ -241,6 +242,19 @@ const Vote = () => {
               <Typography textAlign="center" fontWeight={700}>
                 Bài trình chiếu đã kết thúc
               </Typography>
+              <Typography
+                textAlign="center"
+                fontWeight={700}
+                onClick={() => {
+                  navigate('/')
+                }}
+                sx={{
+                  cursor: 'pointer',
+                  color: teal[500],
+                }}
+              >
+                Về trang chủ
+              </Typography>
             </Box>
           ) : (
             <Box
@@ -418,70 +432,68 @@ const Vote = () => {
                   </Typography>
                 </Box>
               )}
+              <Box
+                sx={{
+                  position: 'fixed',
+                  bottom: 20,
+                  right: '125px',
+                }}
+              >
+                <Space>
+                  <Popover
+                    content={
+                      <div>
+                        <ChatPresent
+                          handleChat={handleChat}
+                          listMessage={listMessage || []}
+                          handleGetChat={handleGetChat}
+                          isHasMore={isHasMore}
+                        />
+                      </div>
+                    }
+                    title="Chat"
+                    trigger="click"
+                    open={openChat}
+                    onOpenChange={() => {
+                      setOpenChat(!openChat)
+                    }}
+                  >
+                    <IconButton>
+                      <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
+                        <ChatIcon
+                          sx={{
+                            fontSize: 30,
+                          }}
+                        />
+                      </Badge>
+                    </IconButton>
+                  </Popover>
+                  <IconButton
+                    onClick={() => {
+                      setOpenQuestion(!openQuestion)
+                    }}
+                  >
+                    <Badge badgeContent={0} color="primary">
+                      <QuizIcon
+                        sx={{
+                          fontSize: 30,
+                        }}
+                      />
+                    </Badge>
+                  </IconButton>
+                  <QuestionView
+                    openQuestion={openQuestion}
+                    setOpenQuestion={setOpenQuestion}
+                    handleQuestion={handleQuestion}
+                    listQuestion={listQuestion}
+                    sort={sort}
+                    setSort={setSort}
+                    handleVoteQuestion={handleVoteQuestion}
+                  />
+                </Space>
+              </Box>
             </Box>
           )}
-        </Box>
-      )}
-      {!isPending && !endPresent && (
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 20,
-            right: '125px',
-          }}
-        >
-          <Space>
-            <Popover
-              content={
-                <div>
-                  <ChatPresent
-                    handleChat={handleChat}
-                    listMessage={listMessage || []}
-                    handleGetChat={handleGetChat}
-                    isHasMore={isHasMore}
-                  />
-                </div>
-              }
-              title="Chat"
-              trigger="click"
-              open={openChat}
-              onOpenChange={() => {
-                setOpenChat(!openChat)
-              }}
-            >
-              <IconButton>
-                <Badge badgeContent={!openChat ? notifiChat : 0} color="primary">
-                  <ChatIcon
-                    sx={{
-                      fontSize: 30,
-                    }}
-                  />
-                </Badge>
-              </IconButton>
-            </Popover>
-            <IconButton
-              onClick={() => {
-                setOpenQuestion(!openQuestion)
-              }}
-            >
-              <Badge badgeContent={0} color="primary">
-                <QuizIcon
-                  sx={{
-                    fontSize: 30,
-                  }}
-                />
-              </Badge>
-            </IconButton>
-            <QuestionView
-              openQuestion={openQuestion}
-              setOpenQuestion={setOpenQuestion}
-              handleQuestion={handleQuestion}
-              listQuestion={listQuestion}
-              sort={sort}
-              setSort={setSort}
-              handleVoteQuestion={handleVoteQuestion}
-            />
-          </Space>
         </Box>
       )}
     </Box>
