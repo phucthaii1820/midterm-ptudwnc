@@ -47,13 +47,27 @@ function App() {
     socket.on('group:start-present', (res: PropsGroup) => {
       setGroupPresent(res)
     })
+
+    socket.on('group:end-present', (res: PropsGroup) => {
+      setGroup(group.filter((item) => item.groupId !== res.groupId))
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   React.useEffect(() => {
     if (groupPresent.groupName !== '') {
-      toast.success(`Nhóm ${groupPresent.groupName} đã bắt đầu thuyết trình`)
-      setGroup([...group, groupPresent])
+      let check = false
+      for (let i = 0; i < group.length; i += 1) {
+        if (group[i].groupId === groupPresent.groupId) {
+          check = true
+        }
+      }
+      if (!check) {
+        setGroup([...group, groupPresent])
+        toast.success(`Nhóm ${groupPresent.groupName} bắt đầu thuyết trình`)
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupPresent])
 
   return (

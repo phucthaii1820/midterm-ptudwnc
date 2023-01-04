@@ -3,9 +3,12 @@ import { Avatar, Box, Card, CardActions, CardContent, Divider, IconButton, Typog
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { useNavigate } from 'react-router-dom'
+import userStore from 'stores/user'
+
 import { Group } from 'types/group'
 
 const CardGroup = ({ groupId, groupName, ownerName }: Group) => {
+  const { group } = userStore()
   const navigate = useNavigate()
   return (
     <Card
@@ -87,16 +90,17 @@ const CardGroup = ({ groupId, groupName, ownerName }: Group) => {
         sx={{
           minHeight: '50px',
         }}
-      >
-        {' '}
-      </CardContent>
+      />
       <Divider />
       <CardActions
         sx={{
           display: 'flex',
-          justifyContent: 'end',
+          justifyContent: 'space-between',
         }}
       >
+        {group?.map(
+          (item) => item?.groupId === groupId && <Typography key={item?.groupId}>Đang được trình chiếu</Typography>,
+        )}
         <IconButton aria-label="settings">
           <SupervisedUserCircleIcon />
         </IconButton>

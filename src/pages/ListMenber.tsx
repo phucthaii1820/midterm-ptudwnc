@@ -8,8 +8,10 @@ import {
   Divider,
   Grid,
   IconButton,
+  InputAdornment,
   List,
   ListItem,
+  OutlinedInput,
   TextField,
   Typography,
 } from '@mui/material'
@@ -17,6 +19,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { teal, grey } from '@mui/material/colors'
 import { toast } from 'react-toastify'
 import LogoutIcon from '@mui/icons-material/Logout'
+import ShareIcon from '@mui/icons-material/Share'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
 import CardMenber from 'components/cards/CardMenber'
 import Layout from 'components/layouts/Layout'
@@ -25,17 +29,19 @@ import { Detailgroup } from 'types/group'
 import userStore from 'stores/user'
 import WarningMessage from 'components/modal/WarningMessage'
 import InviteByEmail from 'components/modal/InviteByEmail'
+import { Modal } from 'antd'
 
 const BASE_API_FE = process.env.REACT_APP_BASE_HOST_FE
 
 const ListMenber = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { user } = userStore()
+  const { user, group } = userStore()
   const [data, setData] = React.useState({} as Detailgroup)
   const [link, setLink] = React.useState('')
   const [openWarning, setOpenWarning] = React.useState(false)
   const [isPending, setIsPending] = React.useState(true)
+  const [isModalOpenShare, setIsModalOpenShare] = React.useState(false)
 
   const getDetail = async () => {
     const res = await getGroupDetail(id)
@@ -146,6 +152,14 @@ const ListMenber = () => {
                 display: 'flex',
               }}
             >
+              <IconButton onClick={() => setIsModalOpenShare(true)}>
+                <ShareIcon
+                  sx={{
+                    fontSize: 30,
+                    color: 'white',
+                  }}
+                />
+              </IconButton>
               <InviteByEmail disabled={data?.owner?.id !== user?.id} groupId={data?.information?.id} />
 
               <WarningMessage
@@ -169,30 +183,40 @@ const ListMenber = () => {
             </Box>
           </Box>
 
-          <Grid container spacing={3} mt={1}>
-            <Grid item xs={10}>
-              <TextField value={link} size="small" disabled fullWidth label="link join group" />
-            </Grid>
-            <Grid item xs={2}>
-              <Button
-                sx={{
-                  backgroundColor: teal[500],
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: teal[700],
-                  },
-                  '&:disabled': {
-                    backgroundColor: grey[500],
-                    color: 'white',
-                  },
-                }}
-                disabled={user?.id !== data?.owner?.id}
-                onClick={generateLink}
-              >
-                Generate link
-              </Button>
-            </Grid>
-          </Grid>
+          {group?.map(
+            (item) =>
+              item?.groupId === data?.information?.id && (
+                <Box key={item?.groupId} mt={4}>
+                  <OutlinedInput
+                    fullWidth
+                    size="small"
+                    value={`${BASE_API_FE}/presentations/${item?.groupId}/${
+                      data?.information?.currentUserRole === 'member' ? 'view' : 'present'
+                    }/${item?.presentationId}/${item?.slideId}`}
+                    disabled
+                    sx={{
+                      mt: 1,
+                    }}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              `${BASE_API_FE}/presentations/${item?.groupId}/${
+                                data?.information?.currentUserRole === 'member' ? 'view' : 'present'
+                              }/${item?.presentationId}/${item?.slideId}`,
+                            )
+                            toast.success('Đã copy link')
+                          }}
+                        >
+                          <ContentCopyIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                </Box>
+              ),
+          )}
 
           <Box
             sx={{
@@ -277,6 +301,45 @@ const ListMenber = () => {
           )}
         </Container>
       )}
+
+      <Modal
+        title="Chia sẻ"
+        open={isModalOpenShare}
+        onCancel={() => setIsModalOpenShare(false)}
+        footer={null}
+        width={1000}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+          }}
+        >
+          <Grid container spacing={3} mt={1}>
+            <Grid item xs={10}>
+              <TextField value={link} size="small" disabled fullWidth label="link join group" />
+            </Grid>
+            <Grid item xs={2}>
+              <Button
+                sx={{
+                  backgroundColor: teal[500],
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: teal[700],
+                  },
+                  '&:disabled': {
+                    backgroundColor: grey[500],
+                    color: 'white',
+                  },
+                }}
+                disabled={user?.id !== data?.owner?.id}
+                onClick={generateLink}
+              >
+                Generate link
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Modal>
     </Layout>
   )
 }

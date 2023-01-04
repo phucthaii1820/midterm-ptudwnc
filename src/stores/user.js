@@ -11,7 +11,14 @@ let store = (set, get) => ({
     id: '',
   },
   token: null,
-  group: [],
+  group: [
+    {
+      groupId: '',
+      presentationId: '',
+      groupName: '',
+      slideId: '',
+    },
+  ],
   getUser: () => get().user,
   getGroup: () => get().group,
   setGroup: (data) => {
