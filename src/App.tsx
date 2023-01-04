@@ -41,8 +41,10 @@ function App() {
     presentationId: '',
   })
   React.useEffect(() => {
-    socket.emit('group:waiting', (res: PropsGroup[]) => {
-      setGroup(res)
+    socket.emit('group:waiting', (res: any) => {
+      if (res?.error?.code !== 'user_not_found') {
+        setGroup(res)
+      }
     })
     socket.on('group:start-present', (res: PropsGroup) => {
       setGroupPresent(res)
