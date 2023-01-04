@@ -1,6 +1,8 @@
 import React from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { ToastContainer } from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
+import io from 'socket.io-client'
+import userStore from 'stores/user'
 
 import WebRoute from './router'
 import './App.css'
@@ -16,7 +18,44 @@ const theme = createTheme({
   },
 })
 
+interface PropsGroup {
+  groupName: string
+  groupId: string
+  presentationId: string
+}
+
+// const BASE_HOST = process.env.REACT_APP_BASE_HOST_FE
+const BASE_API = process.env.REACT_APP_BASE_HOST
+const socket = io(BASE_API?.toString() || 'http://localhost:3000', {
+  transports: ['websocket'],
+  auth: {
+    token: userStore.getState().token,
+  },
+})
+
 function App() {
+  const { setGroup, group } = userStore()
+  const [groupPresent, setGroupPresent] = React.useState<PropsGroup>({
+    groupName: '',
+    groupId: '',
+    presentationId: '',
+  })
+  React.useEffect(() => {
+    socket.emit('group:waiting', (res: PropsGroup[]) => {
+      setGroup(res)
+    })
+    socket.on('group:start-present', (res: PropsGroup) => {
+      setGroupPresent(res)
+    })
+  }, [])
+
+  React.useEffect(() => {
+    if (groupPresent.groupName !== '') {
+      toast.success(`Nhóm ${groupPresent.groupName} đã bắt đầu thuyết trình`)
+      setGroup([...group, groupPresent])
+    }
+  }, [groupPresent])
+
   return (
     <ThemeProvider theme={theme}>
       <div className="App">

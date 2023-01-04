@@ -11,7 +11,15 @@ let store = (set, get) => ({
     id: '',
   },
   token: null,
+  group: [],
   getUser: () => get().user,
+  getGroup: () => get().group,
+  setGroup: (data) => {
+    set((state) => ({
+      ...state,
+      group: data,
+    }))
+  },
   setDataUser: (data) => {
     set((state) => ({
       ...state,

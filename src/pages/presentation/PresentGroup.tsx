@@ -14,8 +14,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { Modal, Popover, Space } from 'antd'
 import ChatIcon from '@mui/icons-material/Chat'
 import QuizIcon from '@mui/icons-material/Quiz'
-
 import userStore from 'stores/user'
+
 import { TYPE_PARAGRAPH, TYPE_MULTIPLE_CHOICE, TYPE_HEADING } from 'consts/slide'
 import Loading from 'components/Loading'
 import { toast } from 'react-toastify'
@@ -272,7 +272,6 @@ const PresentGroup = () => {
     })
 
     socket.on('group:post-question', (dataChat: QuestionList) => {
-      console.log(dataChat)
       setAnsweredQuestionList(dataChat?.answeredQuestionList)
       setUnAnsweredQuestionList(dataChat?.unAnsweredQuestionList)
     })
@@ -298,7 +297,7 @@ const PresentGroup = () => {
         groupId: idG,
       })
     }
-  }, [])
+  }, [data?.id, idG, idP, idS])
 
   React.useEffect(() => {
     setNotifiChat(0)
@@ -309,6 +308,7 @@ const PresentGroup = () => {
       setListMessage([newMessage, ...listMessage])
       setNotifiChat((prevState) => prevState + 1)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newMessage])
 
   return (
