@@ -297,7 +297,8 @@ const PresentGroup = () => {
         groupId: idG,
       })
     }
-  }, [data?.id, idG, idP, idS])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   React.useEffect(() => {
     setNotifiChat(0)

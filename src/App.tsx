@@ -41,6 +41,7 @@ function App() {
     presentationId: '',
   })
   React.useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     socket.emit('group:waiting', (res: any) => {
       if (res?.error?.code !== 'user_not_found') {
         setGroup(res)
