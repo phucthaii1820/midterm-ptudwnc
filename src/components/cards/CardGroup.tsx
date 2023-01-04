@@ -1,6 +1,6 @@
 import React from 'react'
 import { Avatar, Box, Card, CardActions, CardContent, Divider, IconButton, Typography } from '@mui/material'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
+// import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { useNavigate } from 'react-router-dom'
 import userStore from 'stores/user'
@@ -10,6 +10,7 @@ import { Group } from 'types/group'
 const CardGroup = ({ groupId, groupName, ownerName }: Group) => {
   const { group } = userStore()
   const navigate = useNavigate()
+
   return (
     <Card
       onClick={() => {
@@ -55,13 +56,14 @@ const CardGroup = ({ groupId, groupName, ownerName }: Group) => {
               {groupName}
             </Typography>
 
-            <IconButton aria-label="settings">
+            {/* <IconButton aria-label="settings" onClick={handleClick}>
               <MoreVertIcon
                 sx={{
                   color: 'white',
+                  zIndex: 100,
                 }}
               />
-            </IconButton>
+            </IconButton> */}
           </Box>
         </Box>
 
@@ -98,12 +100,12 @@ const CardGroup = ({ groupId, groupName, ownerName }: Group) => {
           justifyContent: 'space-between',
         }}
       >
-        {group?.map(
-          (item) => item?.groupId === groupId && <Typography key={item?.groupId}>Đang được trình chiếu</Typography>,
-        )}
         <IconButton aria-label="settings">
           <SupervisedUserCircleIcon />
         </IconButton>
+        {group?.map(
+          (item) => item?.groupId === groupId && <Typography key={item?.groupId}>Đang được trình chiếu</Typography>,
+        )}
       </CardActions>
     </Card>
   )

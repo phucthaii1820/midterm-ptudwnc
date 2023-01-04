@@ -11,6 +11,8 @@ import {
   InputAdornment,
   List,
   ListItem,
+  Menu,
+  MenuItem,
   OutlinedInput,
   TextField,
   Typography,
@@ -21,10 +23,11 @@ import { toast } from 'react-toastify'
 import LogoutIcon from '@mui/icons-material/Logout'
 import ShareIcon from '@mui/icons-material/Share'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import SettingsIcon from '@mui/icons-material/Settings'
 
 import CardMenber from 'components/cards/CardMenber'
 import Layout from 'components/layouts/Layout'
-import { generateInviteLink, getGroupDetail, getInviteLinkById, leaveGroup } from 'api/group'
+import { deleteGroup, generateInviteLink, getGroupDetail, getInviteLinkById, leaveGroup } from 'api/group'
 import { Detailgroup } from 'types/group'
 import userStore from 'stores/user'
 import WarningMessage from 'components/modal/WarningMessage'
@@ -42,6 +45,24 @@ const ListMenber = () => {
   const [openWarning, setOpenWarning] = React.useState(false)
   const [isPending, setIsPending] = React.useState(true)
   const [isModalOpenShare, setIsModalOpenShare] = React.useState(false)
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+  const handleDeleteGroup = async () => {
+    setAnchorEl(null)
+
+    await deleteGroup(id)?.then((res) => {
+      if (res?.status === 201) {
+        toast.success('Xóa nhóm thành công')
+        navigate('/')
+      } else if (res?.data?.error?.code === 'permission_denied') {
+        toast.error('Bạn không có quyền xóa nhóm này')
+      }
+    })
+  }
 
   const getDetail = async () => {
     const res = await getGroupDetail(id)
@@ -175,12 +196,37 @@ const ListMenber = () => {
                       color: 'white',
                     }}
                   >
-                    <LogoutIcon fontSize="large" />
+                    <LogoutIcon fontSize="large" sx={{ fontSize: 30 }} />
                   </IconButton>
                 }
                 actionAgree={handleLeaveGroup}
               />
             </Box>
+            <IconButton
+              sx={{
+                p: '16px',
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                display: 'flex',
+                color: 'white',
+              }}
+              onClick={handleClick}
+              disabled={data?.owner?.id !== user?.id}
+            >
+              <SettingsIcon fontSize="large" />
+            </IconButton>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={() => setAnchorEl(null)}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              <MenuItem onClick={handleDeleteGroup}>Xóa nhóm</MenuItem>
+            </Menu>
           </Box>
 
           {group?.map(

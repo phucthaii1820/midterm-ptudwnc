@@ -58,3 +58,9 @@ export const sentInviteEmail = (groupId, emails) => {
     emails,
   })
 }
+
+export const deleteGroup = (groupId) => {
+  return HttpUtility.post(`${BASE_API}/group/delete`, {
+    groupId,
+  })
+}
